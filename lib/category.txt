@@ -1,0 +1,187 @@
+    //Food & Drink
+
+// Restaurants
+// Cafes
+// Bars
+// Bakeries
+// Ice Cream Shops
+// Food Delivery Services
+
+
+// Shopping
+
+// Grocery Stores
+// Clothing Stores
+// Electronics Stores
+// Bookstores
+// Shopping Malls
+// Convenience Stores
+
+
+// Services
+
+// Banks
+// Post Offices
+// Dry Cleaners
+// Hair Salons
+// Spas
+// Car Repair
+
+
+// Health & Medical
+
+// Hospitals
+// Doctors' Offices
+// Dentists
+// Pharmacies
+// Veterinarians
+// Mental Health Professionals
+
+
+// Education
+
+// Schools
+// Universities
+// Libraries
+// Museums
+// Art Galleries
+// Training Centers
+
+
+// Transportation
+
+// Airports
+// Train Stations
+// Bus Stations
+// Subway Stations
+// Car Rental
+// Parking
+
+
+// Lodging
+
+// Hotels
+// Motels
+// Resorts
+// Hostels
+// Vacation Rentals
+// Camping Grounds
+
+
+// Entertainment & Recreation
+
+// Movie Theaters
+// Theaters
+// Amusement Parks
+// Sports Complexes
+// Bowling Alleys
+// Nightclubs
+
+
+// Outdoor & Nature
+
+// Parks
+// Beaches
+// Hiking Trails
+// Campgrounds
+// Lakes
+// National Parks
+
+
+// Professional Services
+
+// Law Firms
+// Accounting Firms
+// Real Estate Agencies
+// Marketing Agencies
+// Consulting Firms
+// Insurance Agencies
+
+
+// Government & Public Services
+
+// City Halls
+// Courthouses
+// Police Stations
+// Fire Stations
+// Embassies
+// Public Libraries
+
+
+// Religious Places
+
+// Churches
+// Mosques
+// Temples
+// Synagogues
+// Monasteries
+
+
+// Automotive
+
+// Car Dealerships
+// Auto Parts Stores
+// Gas Stations
+// Car Washes
+// Motorcycle Dealers
+
+
+// Sports & Fitness
+
+// Gyms
+// Yoga Studios
+// Swimming Pools
+// Sports Clubs
+// Golf Courses
+
+
+// Arts & Culture
+
+// Theaters
+// Concert Halls
+// Art Galleries
+// Cultural Centers
+// Dance Studios
+
+
+// Home & Garden
+
+// Furniture Stores
+// Hardware Stores
+// Garden Centers
+// Home Improvement Stores
+
+
+// Beauty & Personal Care
+
+// Beauty Salons
+// Barber Shops
+// Nail Salons
+// Massage Therapists
+// Tanning Salons
+
+
+// Financial Services
+
+// Banks
+// Credit Unions
+// ATMs
+// Financial Advisors
+// Tax Services
+
+
+// Technology
+
+// Computer Stores
+// Mobile Phone Stores
+// Internet Service Providers
+// Software Companies
+
+
+// Events & Venues
+
+// Convention Centers
+// Wedding Venues
+// Banquet Halls
+// Stadiums
+// Arenas

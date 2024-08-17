@@ -1,0 +1,73 @@
+# restaurant_rating_app.py
+
+import random
+from dataclasses import dataclass
+from typing import List, Dict
+
+@dataclass
+class Restaurant:
+    id: int
+    name: str
+    elo_rating: float = 1500  # Starting Elo rating
+
+class User:
+    def __init__(self, id: int, name: str):
+        self.id = id
+        self.name = name
+        self.comparisons: List[tuple] = []  # Store user's comparisons
+
+class RatingSystem:
+    def __init__(self):
+        self.restaurants: Dict[int, Restaurant] = {}
+        self.users: Dict[int, User] = {}
+
+    def add_restaurant(self, id: int, name: str):
+        self.restaurants[id] = Restaurant(id, name)
+
+    def add_user(self, id: int, name: str):
+        self.users[id] = User(id, name)
+
+    def compare_restaurants(self, user_id: int, restaurant1_id: int, restaurant2_id: int, winner_id: int):
+        user = self.users[user_id]
+        r1 = self.restaurants[restaurant1_id]
+        r2 = self.restaurants[restaurant2_id]
+
+        # Store the comparison
+        user.comparisons.append((restaurant1_id, restaurant2_id, winner_id))
+
+        # Calculate Elo rating change
+        k_factor = 32  # This determines how much ratings can change
+        expected_score1 = 1 / (1 + 10**((r2.elo_rating - r1.elo_rating) / 400))
+        expected_score2 = 1 - expected_score1
+
+        if winner_id == restaurant1_id:
+            r1.elo_rating += k_factor * (1 - expected_score1)
+            r2.elo_rating += k_factor * (0 - expected_score2)
+        else:
+            r1.elo_rating += k_factor * (0 - expected_score1)
+            r2.elo_rating += k_factor * (1 - expected_score2)
+
+    def get_restaurant_ratings(self):
+        return {r.id: r.elo_rating for r in self.restaurants.values()}
+
+# Example usage
+rating_system = RatingSystem()
+
+# Add restaurants
+rating_system.add_restaurant(1, "Pizza Place")
+rating_system.add_restaurant(2, "Burger Joint")
+rating_system.add_restaurant(3, "Sushi Spot")
+
+# Add users
+rating_system.add_user(1, "Alice")
+rating_system.add_user(2, "Bob")
+
+# Simulate comparisons
+for _ in range(100):
+    user_id = random.choice([1, 2])
+    r1, r2 = random.sample(list(rating_system.restaurants.keys()), 2)
+    winner = random.choice([r1, r2])
+    rating_system.compare_restaurants(user_id, r1, r2, winner)
+
+# Print final ratings
+print(rating_system.get_restaurant_ratings())
