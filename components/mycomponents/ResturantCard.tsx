@@ -51,7 +51,7 @@ export default function ResturantCard() {
         </CardFooter>
       </div>
 
-      <div className='w-full md:w-2/5 h-48 md:h-auto relative'>
+      <div className='w-full h-32 md:w-2/5 md:h-auto relative'>
         <Image
           src={mcdPic}
           alt='McDonalds'
@@ -62,6 +62,5 @@ export default function ResturantCard() {
         />
       </div>
     </Card>
-  
   );
 }
