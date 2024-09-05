@@ -16,25 +16,6 @@ import Link from 'next/link';
 import { MoveUp, MoveDown, ExternalLink } from 'lucide-react';
 import { Link as LucideLink } from 'lucide-react';
 
-  const mcd = new Restaurant(
-    "McDonald's",
-    'Fast Food',
-    3.5,
-    '123-456-7890',
-    'https://www.mcdonalds.com',
-    '123 Main St, Anytown, USA',
-    'https://lh5.googleusercontent.com/p/AF1QipPxU38eYIJtE556UcRzqQpU0MBRuoHY9ywGa_Lh=w1360-h1020'
-  );
-  const kfc = new Restaurant(
-    'KFC',
-    'Fast Food',
-    4.5,
-    '123-456-7890',
-    'https://www.kfc.com',
-    '123 Main St, Anytown, USA',
-    'https://lh5.googleusercontent.com/p/AF1QipPxU38eYIJtE556UcRzqQpU0MBRuoHY9ywGa_Lh=w1360-h1020'
-  );
-
 export default function RestaurantCard({ restaurant }: { restaurant: Restaurant }) {
   return (
     <Card className="flex flex-col md:flex-row h-auto m-4">
