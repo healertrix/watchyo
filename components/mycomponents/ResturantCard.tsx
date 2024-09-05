@@ -9,6 +9,7 @@ import {
 import { buttonVariants } from '@/components/ui/button';
 import Image from 'next/image';
 import mcdPic from '@/public/mcd.jpg';
+import placeholderImg from '@/public/placeholder-restaurant.png';
 import Restaurant from '@/lib/restaurant';
 import { Button } from '../ui/button';
 import Link from 'next/link';
@@ -22,7 +23,8 @@ export default function ResturantCard() {
     3.5,
     '123-456-7890',
     'https://www.mcdonalds.com',
-    '123 Main St, Anytown, USA'
+    '123 Main St, Anytown, USA',
+    'https://www.nrn.com/sites/nrn.com/files/styles/article_featured_retina/public/Mcd%20Drive%20Thru.jpg?itok=DeF7fayX'
   );
   return (
     <Card className='flex flex-col md:flex-row h-auto m-4'>
@@ -53,10 +55,10 @@ export default function ResturantCard() {
 
       <div className='w-full h-32 md:w-2/5 md:h-auto relative'>
         <Image
-          src={mcdPic}
+          src='https://lh5.googleusercontent.com/p/AF1QipPxU38eYIJtE556UcRzqQpU0MBRuoHY9ywGa_Lh=w1360-h1020'
           alt='McDonalds'
           fill={true}
-          placeholder='blur'
+          // blurDataURL={placeholderImg}
           style={{ objectFit: 'cover' }}
           className='rounded-b-lg md:rounded-r-lg md:rounded-bl-none'
         />

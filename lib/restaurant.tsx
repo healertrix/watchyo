@@ -5,13 +5,15 @@ export default class Restaurant {
   fullAddress: string;
   phoneNumber: string;
   website: string;
+  imageLink: string;
   constructor(
     name: string,
     category: string,
     rating: number,
     phoneNumber: string,
     website: string,
-    fullAddress: string
+    fullAddress: string,
+    imageLink: string
   ) {
     this.name = name;
     this.category = category;
@@ -20,6 +22,7 @@ export default class Restaurant {
     this.phoneNumber = phoneNumber;
     this.website = website;
     this.fullAddress = fullAddress;
+    this.imageLink = imageLink;
   }
 
   display() {
@@ -34,6 +37,8 @@ const mcd = new Restaurant(
     3.5,
     "123-456-7890",
     "https://www.mcdonalds.com",
-    "123 Main St, Anytown, USA"
+  "123 Main St, Anytown, USA",
+  "https://www.mcdonalds.com"
+    
 );
 mcd.display();
