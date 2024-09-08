@@ -5,7 +5,15 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: '**.googleusercontent.com',
+        hostname: '**.googleusercontent.com', // Fix wildcard usage
+      },
+      {
+        protocol: 'https',
+        hostname: '**.pixel.com', // Fix wildcard usage
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.pexels.com', // Add Pexels hostname
       },
     ],
   },
