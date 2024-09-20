@@ -21,6 +21,7 @@ const CardSchema = z.object({
   volatility: z.number().default(INITIAL_VOLATILITY),
   createdAt: z.date(),
   updatedAt: z.date(),
+  sonnebornBerger: z.number().default(0),
 });
 
 // Infer the Card type from the schema
@@ -31,6 +32,7 @@ const InitialCardSchema = CardSchema.omit({
   glickoRating: true,
   rd: true,
   volatility: true,
+  sonnebornBerger: true,
   createdAt: true,
   updatedAt: true,
 });

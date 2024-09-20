@@ -72,13 +72,16 @@ interface FinalRankingsProps {
 }
 
 export function FinalRankings({ sortedCards }: FinalRankingsProps) {
+  const finalSortedCards = sortedCards.sort((a, b) => 
+    b.glickoRating - a.glickoRating || b.sonnebornBerger - a.sonnebornBerger
+  );
+
   return (
     <div className='flex flex-col items-center justify-start p-4'>  
-
       <Trophy className='w-16 h-16 text-yellow-500 mb-4' />
       <h2 className='text-2xl font-bold mb-6'>Final Rankings</h2>
       <div className='w-full max-w-4xl grid gap-4'>
-        {sortedCards.map((card, index) => (
+        {finalSortedCards.map((card, index) => (
           <RankingCard key={card.id} card={card} index={index} />
         ))}
       </div>

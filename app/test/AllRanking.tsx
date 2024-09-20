@@ -8,7 +8,7 @@ import {
   initializeCards,
   validateCards,
 } from '../lib/glicko';
-import { getNextPair, getTotalRounds } from '../lib/swiss';
+import { getNextPair, getTotalRounds, calculateSonnebornBerger } from '../lib/swiss';
 import { SelectRestaurant } from '@/db/schema';
 import RestaurantCard from '@/components/mycomponents/ResturantCard';
 import { motion } from 'framer-motion';
@@ -47,7 +47,11 @@ export default function AllRanking({ initialRestaurants }: GlobalRankingProps) {
     const initializedCards = initializeCards(initialCards);
     setCards(initializedCards);
     setTotalRounds(getTotalRounds(initializedCards.length));
-    setCurrentPair(getNextPair(initializedCards, 0, {}));
+    const firstPair = getNextPair(initializedCards, 0, {});
+    setCurrentPair(firstPair);
+    if (!firstPair) {
+      setIsRankingComplete(true);
+    }
   }, [initialRestaurants]);
 
   function handleCardClick(selectedCard: Card) {
@@ -65,36 +69,38 @@ export default function AllRanking({ initialRestaurants }: GlobalRankingProps) {
             ? newLoser
             : card
         );
-        const nextPair = getNextPair(
-          updatedCards,
-          currentRound + 1,
-          pairingHistory
-        );
-        setCurrentPair(nextPair);
 
-        // Update pairing history
+        const cardsWithSB = updatedCards.map(card => ({
+          ...card,
+          sonnebornBerger: calculateSonnebornBerger(card, updatedCards)
+        }));
+
+        return validateCards(cardsWithSB);
+      });
+
+      setCurrentRound((prevRound) => {
+        const newRound = prevRound + 1;
+        if (newRound >= totalRounds) {
+          setIsRankingComplete(true);
+          return newRound;
+        }
+
+        const nextPair = getNextPair(cards, newRound, pairingHistory);
         if (nextPair) {
+          setCurrentPair(nextPair);
           setPairingHistory((prev) => {
             const newHistory = { ...prev };
-            if (!newHistory[nextPair[0].id])
-              newHistory[nextPair[0].id] = new Set();
-            if (!newHistory[nextPair[1].id])
-              newHistory[nextPair[1].id] = new Set();
+            if (!newHistory[nextPair[0].id]) newHistory[nextPair[0].id] = new Set();
+            if (!newHistory[nextPair[1].id]) newHistory[nextPair[1].id] = new Set();
             newHistory[nextPair[0].id].add(nextPair[1].id);
             newHistory[nextPair[1].id].add(nextPair[0].id);
             return newHistory;
           });
+        } else {
+          setIsRankingComplete(true);
         }
 
-        setCurrentRound((prev) => {
-          const newRound = prev + 1;
-          if (!nextPair || newRound >= totalRounds) {
-            setIsRankingComplete(true);
-          }
-          return newRound;
-        });
-
-        return validateCards(updatedCards);
+        return newRound;
       });
 
       setWinner(null);
