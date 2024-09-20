@@ -2,17 +2,13 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
-import { ModeToggle } from "@/components/ModeToggle";
 const inter = Inter({ subsets: ["latin"] });
-
-import { Button } from '@/components/ui/button';
-import { ChevronRight, Home, House } from "lucide-react";
 
 import Navbar from '@/components/mycomponents/Navbar';
 
 export const metadata: Metadata = {
   title: "EloRate",
-  description: "lets elo rate everything", 
+  description: "Let's Elo rate everything",
 };
 
 export default function RootLayout({
@@ -30,8 +26,9 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <Navbar />
-
-          {children}
+          <main className="container mx-auto px-4 sm:px-6 py-2">
+            {children}
+          </main>
         </ThemeProvider>
       </body>
     </html>

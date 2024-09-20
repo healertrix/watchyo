@@ -1,76 +1,65 @@
-'use client';
-import React, { useState } from 'react';
+import React from 'react';
+import { Card } from '@/app/lib/elo';
 import Image from 'next/image';
-import Link from 'next/link';
-import { ExternalLink, Trophy } from 'lucide-react';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import Restaurant from '@/lib/restaurant';
-import { RestaurantSchema } from '@/lib/db.types';
-import { z } from 'zod';
-type RestaurantCardProps = {
-  restaurant: z.infer<typeof RestaurantSchema>;
-};
+import { Link, Phone } from 'lucide-react';
 
-export default function RestaurantCard({ restaurant }: RestaurantCardProps) {
-  const [isFilled, setIsFilled] = useState(false);
+interface RestaurantCardProps {
+  restaurant: Card;
+  showElo?: boolean;
+  eloColor?: string;
+  showDetails?: boolean;
+  isComparison?: boolean;
+}
 
-  const handleClick = () => setIsFilled((prevIsFilled) => !prevIsFilled);
-  console.log(restaurant, 'restaurant in the card file');
+export default function RestaurantCard({ 
+  restaurant, 
+  showElo = true, 
+  eloColor = 'text-white',
+  showDetails = false,
+  isComparison = false
+}: RestaurantCardProps) {
   return (
-    <Card className="flex flex-col md:flex-row h-auto m-4">
-      <div className="flex flex-col w-full md:w-3/5">
-        <CardHeader className="p-4">
-          <CardTitle>{restaurant.name}</CardTitle>
-          <div className="flex flex-row items-center">
-            <CardDescription>{restaurant.category}</CardDescription>
-            <Link
-              href={restaurant.website}
-              className="ml-3"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <ExternalLink className="h-4 w-4" />
-            </Link>
-          </div>
-        </CardHeader>
-        <CardContent className="p-4 flex-grow">
-          <p>Address: {restaurant.fullAddress}</p>
-          <p>Phone: {restaurant.phoneNumber}</p>
-          <p>Rating: {restaurant.rating}</p>
-        </CardContent>
-        <CardFooter className="p-4">
-          <Button variant="outline" size="icon"
-            onClick={handleClick}
-          >
-            <Trophy
-              className="h-4 w-4"
-              color="gold"
-              fill=
-              {isFilled ?
-              "gold"
-                 : "none"}
-            />
-          </Button>
-        </CardFooter>
-      </div>
-
-      <div className="w-full h-32 md:w-2/5 md:h-auto relative">
+    <div className='flex flex-col h-full'>
+      <div className='relative w-full h-24 mb-2'>
         <Image
-          src={restaurant.imageLink}
+          src={restaurant.imageLink || '/placeholder.jpg'}
           alt={restaurant.name}
-          fill={true}
-          style={{ objectFit: "cover" }}
-          className="rounded-b-lg md:rounded-r-lg md:rounded-bl-none"
+          layout='fill'
+          objectFit='cover'
+          className='rounded-t-lg'
         />
       </div>
-    </Card>
+      <div className='flex-grow'>
+        <h3 className='text-lg font-semibold mb-1'>{restaurant.name}</h3>
+        <p className='text-sm text-gray-500 mb-1'>{restaurant.category}</p>
+        {showElo && (
+          <p className={`text-sm font-bold ${eloColor}`}>
+            {isComparison ? "EloRate" : "ELO Rating"}: {Math.round(restaurant.elorating)}
+          </p>
+        )}
+        {showDetails && (
+          <>
+            <p className='text-sm text-gray-500 mb-1 truncate'>
+              <Phone className='inline w-4 h-4 mr-1' />
+              {restaurant.phoneNumber}
+            </p>
+            <p className='text-sm text-gray-500 mb-1 truncate'>
+              {restaurant.fullAddress}
+            </p>
+          </>
+        )}
+        {restaurant.website && (
+          <a 
+            href={restaurant.website} 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className='text-sm text-blue-500 hover:underline flex items-center'
+          >
+            <Link className='w-4 h-4 mr-1' />
+            Website
+          </a>
+        )}
+      </div>
+    </div>
   );
 }
