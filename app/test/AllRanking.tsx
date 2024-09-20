@@ -7,24 +7,28 @@ import {
   calculateNewRatings,
   initializeCards,
   validateCards,
-  getRandomPair,
-} from '../lib/elo';
+} from '../lib/glicko';
+import { getNextPair, getTotalRounds } from '../lib/swiss';
 import { SelectRestaurant } from '@/db/schema';
 import RestaurantCard from '@/components/mycomponents/ResturantCard';
 import { motion } from 'framer-motion';
 import { ArrowRight, Trophy } from 'lucide-react';
 import { FinalRankings } from '@/components/mycomponents/RankingComponents';
 
-interface EloRankingProps {
+interface GlobalRankingProps {
   initialRestaurants: SelectRestaurant[];
 }
 
-export default function EloRanking({ initialRestaurants }: EloRankingProps) {
+export default function AllRanking({ initialRestaurants }: GlobalRankingProps) {
   const [cards, setCards] = useState<Card[]>([]);
   const [currentPair, setCurrentPair] = useState<[Card, Card] | null>(null);
   const [winner, setWinner] = useState<Card | null>(null);
-  const [totalComparisons, setTotalComparisons] = useState(0);
+  const [currentRound, setCurrentRound] = useState(0);
+  const [totalRounds, setTotalRounds] = useState(0);
   const [isRankingComplete, setIsRankingComplete] = useState(false);
+  const [pairingHistory, setPairingHistory] = useState<{
+    [key: number]: Set<number>;
+  }>({});
 
   useEffect(() => {
     const initialCards: InitialCard[] = initialRestaurants.map(
@@ -42,10 +46,8 @@ export default function EloRanking({ initialRestaurants }: EloRankingProps) {
 
     const initializedCards = initializeCards(initialCards);
     setCards(initializedCards);
-    setCurrentPair(getRandomPair(initializedCards));
-    setTotalComparisons(
-      (initializedCards.length * (initializedCards.length - 1)) / 2
-    );
+    setTotalRounds(getTotalRounds(initializedCards.length));
+    setCurrentPair(getNextPair(initializedCards, 0, {}));
   }, [initialRestaurants]);
 
   function handleCardClick(selectedCard: Card) {
@@ -53,31 +55,49 @@ export default function EloRanking({ initialRestaurants }: EloRankingProps) {
     setTimeout(() => {
       const winner = selectedCard;
       const loser = currentPair!.find((c) => c.id !== winner.id)!;
-      const [newWinnerRating, newLoserRating] = calculateNewRatings(
-        winner,
-        loser
-      );
+      const [newWinner, newLoser] = calculateNewRatings(winner, loser);
 
       setCards((prevCards) => {
         const updatedCards = prevCards.map((card) =>
-          card.id === winner.id
-            ? { ...card, elorating: newWinnerRating }
-            : card.id === loser.id
-            ? { ...card, elorating: newLoserRating }
+          card.id === newWinner.id
+            ? newWinner
+            : card.id === newLoser.id
+            ? newLoser
             : card
         );
+        const nextPair = getNextPair(
+          updatedCards,
+          currentRound + 1,
+          pairingHistory
+        );
+        setCurrentPair(nextPair);
+
+        // Update pairing history
+        if (nextPair) {
+          setPairingHistory((prev) => {
+            const newHistory = { ...prev };
+            if (!newHistory[nextPair[0].id])
+              newHistory[nextPair[0].id] = new Set();
+            if (!newHistory[nextPair[1].id])
+              newHistory[nextPair[1].id] = new Set();
+            newHistory[nextPair[0].id].add(nextPair[1].id);
+            newHistory[nextPair[1].id].add(nextPair[0].id);
+            return newHistory;
+          });
+        }
+
+        setCurrentRound((prev) => {
+          const newRound = prev + 1;
+          if (!nextPair || newRound >= totalRounds) {
+            setIsRankingComplete(true);
+          }
+          return newRound;
+        });
+
         return validateCards(updatedCards);
       });
 
-      setTotalComparisons((prev) => prev - 1);
-
-      const nextPair = getRandomPair(cards);
-      setCurrentPair(nextPair);
       setWinner(null);
-
-      if (!nextPair || totalComparisons <= 1) {
-        setIsRankingComplete(true);
-      }
     }, 1000);
   }
 
@@ -86,7 +106,7 @@ export default function EloRanking({ initialRestaurants }: EloRankingProps) {
   }
 
   if (isRankingComplete) {
-    const sortedCards = cards.sort((a, b) => b.elorating - a.elorating);
+    const sortedCards = cards.sort((a, b) => b.glickoRating - a.glickoRating);
     return <FinalRankings sortedCards={sortedCards} />;
   }
 
@@ -108,10 +128,10 @@ export default function EloRanking({ initialRestaurants }: EloRankingProps) {
               className='relative cursor-pointer transform transition-transform hover:scale-105'
               onClick={() => handleCardClick(card)}
             >
-              <RestaurantCard 
-                restaurant={card} 
-                showElo={true} 
-                showDetails={true} 
+              <RestaurantCard
+                restaurant={card}
+                showGlicko={true}
+                showDetails={true}
                 isComparison={true}
               />
               {winner && winner.id === card.id && (
@@ -127,7 +147,7 @@ export default function EloRanking({ initialRestaurants }: EloRankingProps) {
         <div className='flex items-center mb-2'>
           <ArrowRight className='w-6 h-6 mr-2 text-blue-500' />
           <p className='text-lg font-semibold'>
-            Comparisons left: {totalComparisons}
+            Round: {currentRound + 1} / {totalRounds}
           </p>
         </div>
         <button

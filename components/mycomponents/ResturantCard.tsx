@@ -1,20 +1,20 @@
 import React from 'react';
-import { Card } from '@/app/lib/elo';
+import { Card } from '@/app/lib/glicko';
 import Image from 'next/image';
 import { Link, Phone } from 'lucide-react';
 
 interface RestaurantCardProps {
   restaurant: Card;
-  showElo?: boolean;
-  eloColor?: string;
+  showGlicko?: boolean;
+  glickoColor?: string;
   showDetails?: boolean;
   isComparison?: boolean;
 }
 
 export default function RestaurantCard({ 
   restaurant, 
-  showElo = true, 
-  eloColor = 'text-white',
+  showGlicko = true, 
+  glickoColor = 'text-white',
   showDetails = false,
   isComparison = false
 }: RestaurantCardProps) {
@@ -32,9 +32,9 @@ export default function RestaurantCard({
       <div className='flex-grow'>
         <h3 className='text-lg font-semibold mb-1'>{restaurant.name}</h3>
         <p className='text-sm text-gray-500 mb-1'>{restaurant.category}</p>
-        {showElo && (
-          <p className={`text-sm font-bold ${eloColor}`}>
-            {isComparison ? "EloRate" : "ELO Rating"}: {Math.round(restaurant.elorating)}
+        {showGlicko && (
+          <p className={`text-sm font-bold ${glickoColor}`}>
+            {isComparison ? "Glicko" : "Glicko Rating"}: {Math.round(restaurant.glickoRating)}
           </p>
         )}
         {showDetails && (

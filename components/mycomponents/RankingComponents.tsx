@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Trophy } from 'lucide-react';
 import RestaurantCard from './ResturantCard';
-import { Card } from '@/app/lib/elo';
+import { Card } from '@/app/lib/glicko';
 
 interface RankingCardProps {
   card: Card;
@@ -22,7 +22,7 @@ function getMedalColor(index: number): string {
   }
 }
 
-function getEloColor(index: number): string {
+function getGlickoColor(index: number): string {
   switch (index) {
     case 0:
       return 'text-yellow-500';
@@ -50,8 +50,8 @@ export function RankingCard({ card, index }: RankingCardProps) {
         <div className='flex-grow relative p-4'>
           <RestaurantCard
             restaurant={card}
-            showElo={true}
-            eloColor={getEloColor(index)}
+            showGlicko={true}
+            glickoColor={getGlickoColor(index)}
             showDetails={false}
           />
           <Trophy
@@ -73,7 +73,8 @@ interface FinalRankingsProps {
 
 export function FinalRankings({ sortedCards }: FinalRankingsProps) {
   return (
-    <div className='flex flex-col items-center justify-start p-4'>
+    <div className='flex flex-col items-center justify-start p-4'>  
+
       <Trophy className='w-16 h-16 text-yellow-500 mb-4' />
       <h2 className='text-2xl font-bold mb-6'>Final Rankings</h2>
       <div className='w-full max-w-4xl grid gap-4'>
