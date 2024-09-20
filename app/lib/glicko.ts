@@ -165,6 +165,7 @@ export function initializeCards(cards: InitialCard[]): Card[] {
     glickoRating: INITIAL_RATING,
     rd: INITIAL_RD,
     volatility: INITIAL_VOLATILITY,
+    sonnebornBerger: 0,
     createdAt: new Date(),
     updatedAt: new Date(),
   }));
