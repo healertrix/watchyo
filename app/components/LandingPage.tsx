@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 export default function LandingPage() {
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-950 text-white relative overflow-hidden">
       {/* Grid Background */}
