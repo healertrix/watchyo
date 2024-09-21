@@ -25,17 +25,19 @@ export function swissPairing(cards: Card[], round: number, pairingHistory: Pairi
     for (let j = i + 1; j < sortedCards.length; j++) {
       if (paired.has(sortedCards[j].id)) continue;
 
-      if (!pairingHistory[sortedCards[i].id]?.has(sortedCards[j].id)) {
+      // Check if they have already been paired in previous rounds
+      if (!pairingHistory[sortedCards[i].id]?.has(sortedCards[j].id) || round === 0) {
         pairs.push([sortedCards[i], sortedCards[j]]);
         paired.add(sortedCards[i].id);
         paired.add(sortedCards[j].id);
 
+        // Update pairing history
         if (!pairingHistory[sortedCards[i].id]) pairingHistory[sortedCards[i].id] = new Set();
         if (!pairingHistory[sortedCards[j].id]) pairingHistory[sortedCards[j].id] = new Set();
         pairingHistory[sortedCards[i].id].add(sortedCards[j].id);
         pairingHistory[sortedCards[j].id].add(sortedCards[i].id);
 
-        break;
+        break; // Move to the next player after pairing
       }
     }
   }
