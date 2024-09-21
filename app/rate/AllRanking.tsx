@@ -7,10 +7,15 @@ import {
   calculateNewRatings,
   initializeCards,
   validateCards,
-} from '../lib/glicko';
-import { getNextPair, getTotalRounds, calculateSonnebornBerger } from '../lib/swiss';
+} from '../../lib/rankingAlgo/glicko';
+import {
+  getNextPair,
+  getTotalRounds,
+  calculateSonnebornBerger,
+} from '@/lib/rankingAlgo/swiss';
 import { SelectRestaurant } from '@/db/schema';
 import RestaurantCard from '@/components/mycomponents/ResturantCard';
+
 import { motion } from 'framer-motion';
 import { ArrowRight, Trophy } from 'lucide-react';
 import { FinalRankings } from '@/components/mycomponents/RankingComponents';

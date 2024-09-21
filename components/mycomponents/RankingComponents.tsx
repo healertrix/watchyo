@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Trophy } from 'lucide-react';
 import RestaurantCard from './ResturantCard';
-import { Card } from '@/app/lib/glicko';
+import { Card } from '@/lib/rankingAlgo/glicko';
 
 interface RankingCardProps {
   card: Card;
