@@ -29,6 +29,7 @@ export default function AllRanking({ initialRestaurants }: GlobalRankingProps) {
   const [pairingHistory, setPairingHistory] = useState<{
     [key: number]: Set<number>;
   }>({});
+  const [roundResults, setRoundResults] = useState<Array<{winner: number, loser: number}>>([]);
 
   useEffect(() => {
     const initialCards: InitialCard[] = initialRestaurants.map(
@@ -59,28 +60,14 @@ export default function AllRanking({ initialRestaurants }: GlobalRankingProps) {
     setTimeout(() => {
       const winner = selectedCard;
       const loser = currentPair!.find((c) => c.id !== winner.id)!;
-      const [newWinner, newLoser] = calculateNewRatings(winner, loser);
 
-      setCards((prevCards) => {
-        const updatedCards = prevCards.map((card) =>
-          card.id === newWinner.id
-            ? newWinner
-            : card.id === newLoser.id
-            ? newLoser
-            : card
-        );
-
-        const cardsWithSB = updatedCards.map(card => ({
-          ...card,
-          sonnebornBerger: calculateSonnebornBerger(card, updatedCards)
-        }));
-
-        return validateCards(cardsWithSB);
-      });
+      // Record the result without updating Glicko ratings
+      setRoundResults(prev => [...prev, {winner: winner.id, loser: loser.id}]);
 
       setCurrentRound((prevRound) => {
         const newRound = prevRound + 1;
         if (newRound >= totalRounds) {
+          updateGlickoRatings();
           setIsRankingComplete(true);
           return newRound;
         }
@@ -97,6 +84,7 @@ export default function AllRanking({ initialRestaurants }: GlobalRankingProps) {
             return newHistory;
           });
         } else {
+          updateGlickoRatings();
           setIsRankingComplete(true);
         }
 
@@ -105,6 +93,29 @@ export default function AllRanking({ initialRestaurants }: GlobalRankingProps) {
 
       setWinner(null);
     }, 1000);
+  }
+
+  function updateGlickoRatings() {
+    setCards((prevCards) => {
+      let updatedCards = [...prevCards];
+      for (const result of roundResults) {
+        const winner = updatedCards.find(c => c.id === result.winner)!;
+        const loser = updatedCards.find(c => c.id === result.loser)!;
+        const [newWinner, newLoser] = calculateNewRatings(winner, loser);
+        updatedCards = updatedCards.map(card => 
+          card.id === newWinner.id ? newWinner : 
+          card.id === newLoser.id ? newLoser : card
+        );
+      }
+
+      const cardsWithSB = updatedCards.map(card => ({
+        ...card,
+        sonnebornBerger: calculateSonnebornBerger(card, updatedCards)
+      }));
+
+      return validateCards(cardsWithSB);
+    });
+    setRoundResults([]);
   }
 
   function handleStop() {
