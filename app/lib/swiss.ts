@@ -8,16 +8,14 @@ export function getNextPair(cards: Card[], round: number, pairingHistory: { [key
     return b.sonnebornBerger - a.sonnebornBerger;
   });
   
-  // Use a different pairing strategy for the first round
-  if (round === 0) {
-    return [sortedCards[0], sortedCards[sortedCards.length - 1]];
-  }
+  // Shuffle the sorted cards to introduce more randomness
+  const shuffledCards = sortedCards.sort(() => Math.random() - 0.5);
 
-  // For subsequent rounds, try to pair cards that haven't played each other yet
-  for (let i = 0; i < sortedCards.length - 1; i++) {
-    for (let j = i + 1; j < sortedCards.length; j++) {
-      const card1 = sortedCards[i];
-      const card2 = sortedCards[j];
+  // Try to pair cards that haven't played each other yet
+  for (let i = 0; i < shuffledCards.length; i++) {
+    for (let j = i + 1; j < shuffledCards.length; j++) {
+      const card1 = shuffledCards[i];
+      const card2 = shuffledCards[j];
       
       if (!hasPaired(card1.id, card2.id, pairingHistory)) {
         return [card1, card2];
@@ -29,10 +27,10 @@ export function getNextPair(cards: Card[], round: number, pairingHistory: { [key
   let leastMatches = Infinity;
   let bestPair: [Card, Card] | null = null;
 
-  for (let i = 0; i < sortedCards.length - 1; i++) {
-    for (let j = i + 1; j < sortedCards.length; j++) {
-      const card1 = sortedCards[i];
-      const card2 = sortedCards[j];
+  for (let i = 0; i < shuffledCards.length - 1; i++) {
+    for (let j = i + 1; j < shuffledCards.length; j++) {
+      const card1 = shuffledCards[i];
+      const card2 = shuffledCards[j];
       const matches = (pairingHistory[card1.id]?.size || 0) + (pairingHistory[card2.id]?.size || 0);
       
       if (matches < leastMatches) {
