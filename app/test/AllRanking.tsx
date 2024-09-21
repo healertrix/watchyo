@@ -61,7 +61,6 @@ export default function AllRanking({ initialRestaurants }: GlobalRankingProps) {
       const winner = selectedCard;
       const loser = currentPair!.find((c) => c.id !== winner.id)!;
 
-      // Record the result without updating Glicko ratings
       setRoundResults(prev => [...prev, {winner: winner.id, loser: loser.id}]);
 
       setCurrentRound((prevRound) => {
@@ -72,21 +71,25 @@ export default function AllRanking({ initialRestaurants }: GlobalRankingProps) {
           return newRound;
         }
 
-        const nextPair = getNextPair(cards, newRound, pairingHistory);
-        if (nextPair) {
-          setCurrentPair(nextPair);
-          setPairingHistory((prev) => {
-            const newHistory = { ...prev };
-            if (!newHistory[nextPair[0].id]) newHistory[nextPair[0].id] = new Set();
-            if (!newHistory[nextPair[1].id]) newHistory[nextPair[1].id] = new Set();
-            newHistory[nextPair[0].id].add(nextPair[1].id);
-            newHistory[nextPair[1].id].add(nextPair[0].id);
-            return newHistory;
-          });
-        } else {
-          updateGlickoRatings();
-          setIsRankingComplete(true);
-        }
+        setPairingHistory((prev) => {
+          const newHistory = { ...prev };
+          if (!newHistory[winner.id]) newHistory[winner.id] = new Set();
+          if (!newHistory[loser.id]) newHistory[loser.id] = new Set();
+          newHistory[winner.id].add(loser.id);
+          newHistory[loser.id].add(winner.id);
+          return newHistory;
+        });
+
+        setCards((prevCards) => {
+          const nextPair = getNextPair(prevCards, newRound, pairingHistory);
+          if (nextPair) {
+            setCurrentPair(nextPair);
+          } else {
+            updateGlickoRatings();
+            setIsRankingComplete(true);
+          }
+          return prevCards;
+        });
 
         return newRound;
       });
@@ -110,7 +113,7 @@ export default function AllRanking({ initialRestaurants }: GlobalRankingProps) {
 
       const cardsWithSB = updatedCards.map(card => ({
         ...card,
-        sonnebornBerger: calculateSonnebornBerger(card, updatedCards)
+        sonnebornBerger: calculateSonnebornBerger(card, updatedCards, roundResults)
       }));
 
       return validateCards(cardsWithSB);

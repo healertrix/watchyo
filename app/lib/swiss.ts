@@ -1,55 +1,76 @@
 import { Card } from './glicko';
 
-interface PairingHistory {
-  [key: number]: Set<number>;
-}
+export function getNextPair(cards: Card[], round: number, pairingHistory: { [key: number]: Set<number> }): [Card, Card] | null {
+  const sortedCards = [...cards].sort((a, b) => {
+    if (a.glickoRating !== b.glickoRating) {
+      return b.glickoRating - a.glickoRating;
+    }
+    return b.sonnebornBerger - a.sonnebornBerger;
+  });
+  
+  // Use a different pairing strategy for the first round
+  if (round === 0) {
+    return [sortedCards[0], sortedCards[sortedCards.length - 1]];
+  }
 
-export function calculateSonnebornBerger(player: Card, allPlayers: Card[]): number {
-  return allPlayers.reduce((score, opponent) => {
-    if (player.id === opponent.id) return score;
-    const playerWon = player.glickoRating > opponent.glickoRating;
-    return score + (playerWon ? opponent.glickoRating : opponent.glickoRating / 2);
-  }, 0);
-}
-
-export function swissPairing(cards: Card[], round: number, pairingHistory: PairingHistory): [Card, Card][] {
-  const sortedCards = [...cards].sort((a, b) => 
-    b.glickoRating - a.glickoRating || b.sonnebornBerger - a.sonnebornBerger
-  );
-  const pairs: [Card, Card][] = [];
-  const paired = new Set<number>();
+  // For subsequent rounds, try to pair cards that haven't played each other yet
+  for (let i = 0; i < sortedCards.length - 1; i++) {
+    for (let j = i + 1; j < sortedCards.length; j++) {
+      const card1 = sortedCards[i];
+      const card2 = sortedCards[j];
+      
+      if (!hasPaired(card1.id, card2.id, pairingHistory)) {
+        return [card1, card2];
+      }
+    }
+  }
+  
+  // If all pairs have played, find the pair with the least number of matches
+  let leastMatches = Infinity;
+  let bestPair: [Card, Card] | null = null;
 
   for (let i = 0; i < sortedCards.length - 1; i++) {
-    if (paired.has(sortedCards[i].id)) continue;
-
     for (let j = i + 1; j < sortedCards.length; j++) {
-      if (paired.has(sortedCards[j].id)) continue;
-
-      // Check if they have already been paired in previous rounds
-      if (!pairingHistory[sortedCards[i].id]?.has(sortedCards[j].id) || round === 0) {
-        pairs.push([sortedCards[i], sortedCards[j]]);
-        paired.add(sortedCards[i].id);
-        paired.add(sortedCards[j].id);
-
-        // Update pairing history
-        if (!pairingHistory[sortedCards[i].id]) pairingHistory[sortedCards[i].id] = new Set();
-        if (!pairingHistory[sortedCards[j].id]) pairingHistory[sortedCards[j].id] = new Set();
-        pairingHistory[sortedCards[i].id].add(sortedCards[j].id);
-        pairingHistory[sortedCards[j].id].add(sortedCards[i].id);
-
-        break; // Move to the next player after pairing
+      const card1 = sortedCards[i];
+      const card2 = sortedCards[j];
+      const matches = (pairingHistory[card1.id]?.size || 0) + (pairingHistory[card2.id]?.size || 0);
+      
+      if (matches < leastMatches) {
+        leastMatches = matches;
+        bestPair = [card1, card2];
       }
     }
   }
 
-  return pairs;
+  return bestPair;
 }
 
-export function getNextPair(cards: Card[], currentRound: number, pairingHistory: PairingHistory): [Card, Card] | null {
-  const pairs = swissPairing(cards, currentRound, pairingHistory);
-  return pairs[0] || null;
+function hasPaired(id1: number, id2: number, pairingHistory: { [key: number]: Set<number> }): boolean {
+  return (pairingHistory[id1]?.has(id2) || pairingHistory[id2]?.has(id1)) ?? false;
 }
 
-export function getTotalRounds(cardCount: number): number {
-  return cardCount - 1;
+export function getTotalRounds(numCards: number): number {
+  if (numCards <= 15) {
+    return numCards - 1; // Round-robin for small sets
+  } else {
+    return Math.ceil(Math.log2(numCards)) + 3; // Original logic for larger sets
+  }
+}
+
+export function calculateSonnebornBerger(card: Card, allCards: Card[], results: Array<{winner: number, loser: number}>): number {
+  let score = 0;
+  for (const result of results) {
+    if (result.winner === card.id) {
+      const opponent = allCards.find(c => c.id === result.loser);
+      if (opponent) {
+        score += opponent.glickoRating;
+      }
+    } else if (result.loser === card.id) {
+      const opponent = allCards.find(c => c.id === result.winner);
+      if (opponent) {
+        score += opponent.glickoRating / 2;
+      }
+    }
+  }
+  return score;
 }
