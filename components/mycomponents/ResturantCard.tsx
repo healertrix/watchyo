@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card } from '@/app/lib/glicko';
+import { Card } from '@/lib/rankingAlgo/glicko';
 import Image from 'next/image';
 import { Link, Phone } from 'lucide-react';
 
