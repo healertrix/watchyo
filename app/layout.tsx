@@ -26,7 +26,8 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <Navbar />
-          <main className="container mx-auto px-4 sm:px-6 py-2">
+          <main className='container mx-auto px-4 sm:px-6 py-2'>
+            <div className='fixed inset-0 w-screen h-screen bg-[linear-gradient(to_right,#444_1px,transparent_0.2px),linear-gradient(to_bottom,#444_1px,transparent_0.3px)] bg-[size:4rem_4rem] opacity-5 dark:opacity-10'></div>
             {children}
           </main>
         </ThemeProvider>

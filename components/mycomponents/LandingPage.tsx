@@ -6,7 +6,7 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen flex flex-col  text-white relative overflow-hidden">
       {/* Grid Background */}
-      <div className="fixed inset-0 w-screen h-screen bg-[linear-gradient(to_right,#444_1px,transparent_0.2px),linear-gradient(to_bottom,#444_1px,transparent_0.3px)] bg-[size:4rem_4rem] opacity-10"></div>
+      
 
       {/* Main Content */}
       <main className="flex-grow flex items-center justify-center relative z-10 px-4 py-16">
@@ -18,7 +18,7 @@ export default function LandingPage() {
             Our proprietary algorithm provides accurate ratings with minimal iterations, 
             making the rating process fun and efficient.
           </p>
-          <Link href="/rate">
+          <Link href="/select">
             <Button size="lg" className="bg-gradient-to-r from-black to-gray-700 hover:from-gray-800 hover:to-gray-700 text-white font-bold py-4 px-10 rounded-full transform transition-all duration-300 hover:scale-105 shadow-xl hover:shadow-2xl dark:bg-gradient-to-r dark:from-blue-600 dark:to-purple-700 dark:hover:from-blue-500 dark:hover:to-purple-600">
               Start Rating Now
             </Button>

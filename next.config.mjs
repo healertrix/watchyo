@@ -15,6 +15,10 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'images.pexels.com', // Add Pexels hostname
       },
+      {
+        protocol: 'https',
+        hostname: '**.tmdb.org', // Add TMDb hostname
+      },
     ],
   },
 };
