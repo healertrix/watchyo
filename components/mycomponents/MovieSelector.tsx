@@ -5,6 +5,7 @@ import MovieCard from './MovieCard';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search } from 'lucide-react';
 import Image from 'next/image';
+import React from 'react';
 interface Movie {
   id: number;
   title: string;
