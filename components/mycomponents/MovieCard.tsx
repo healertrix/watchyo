@@ -71,7 +71,7 @@ export default function MovieCard({ movie, genres, onSelect }: MovieCardProps) {
       </div>
       {isHovered && (
         <motion.div
-          className='absolute inset-0 bg-black bg-opacity-75 p-4 flex flex-col justify-end hidden sm:flex'
+          className='absolute inset-0 bg-black bg-opacity-75 p-4 flex flex-col justify-end  sm:flex'
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3 }}
