@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Search } from 'lucide-react';
 import Image from 'next/image';
 import React from 'react';
+import { log } from 'console';
 
 interface MediaItem extends Movie {
   name?: string;
@@ -357,21 +358,30 @@ export default function MovieSelector() {
                       </strong>{' '}
                       {selectedMedia.media_type === 'movie'
                         ? selectedMedia.director || 'Not available'
-                        : selectedMedia.created_by
-                            ?.map((creator) => creator.name)
-                            .join(', ') || 'Not available'}
+                        : selectedMedia.created_by && selectedMedia.created_by.length > 0
+                          ? selectedMedia.created_by
+                              .filter(creator => creator && creator.name)
+                              .map(creator => creator.name)
+                              .join(', ') || 'Not available'
+                          : 'Not available'}
                     </div>
                     <div className='mb-4'>
                       <strong className='text-gray-300'>Cast:</strong>{' '}
-                      {selectedMedia.cast?.join(', ') || 'Not available'}
+                      {selectedMedia.cast && selectedMedia.cast.length > 0
+                        ? selectedMedia.cast
+                            .filter(actor => actor && typeof actor === 'string')
+                            .join(', ') || 'Not available'
+                        : 'Not available'}
                     </div>
                     <div className='mb-4'>
                       <strong className='text-gray-300'>
                         Production Companies:
                       </strong>{' '}
-                      {selectedMedia.production_companies?.length
+                      {selectedMedia.production_companies &&
+                       selectedMedia.production_companies.length > 0
                         ? selectedMedia.production_companies
-                            .map((company) => company.name)
+                            .filter(company => company && company.name)
+                            .map(company => company.name)
                             .join(', ') || 'Not available'
                         : 'Not available'}
                     </div>
