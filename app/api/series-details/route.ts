@@ -1,31 +1,43 @@
 import { NextResponse } from 'next/server';
 
-const TMDB_API_KEY = process.env.TMDB_API_KEY;
-
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const id = searchParams.get('id');
 
   if (!id) {
-    return NextResponse.json({ error: 'ID parameter is required' }, { status: 400 });
+    return NextResponse.json({ error: 'Missing id parameter' }, { status: 400 });
   }
 
+  const apiKey = process.env.TMDB_API_KEY;
+  const url = `https://api.themoviedb.org/3/tv/${id}?api_key=${apiKey}&append_to_response=credits,videos`;
+
   try {
-    const response = await fetch(
-      `https://api.themoviedb.org/3/tv/${id}?api_key=${TMDB_API_KEY}&append_to_response=credits,videos`
-    );
+    const response = await fetch(url);
     const data = await response.json();
 
-    const seriesDetails = {
+    if (data.success === false) {
+      throw new Error(data.status_message);
+    }
+
+    console.log('Raw TV series data:', data); // Log raw data
+    console.log('First air date:', data.first_air_date); // Explicitly log first_air_date
+
+    const processedData = {
       ...data,
-      cast: data.credits.cast.slice(0, 5).map((actor: any) => actor.name),
-      created_by: data.created_by,
-      video: data.videos.results.find((video: any) => video.type === 'Trailer')?.key || null,
+      media_type: 'tv',
+      created_by: data.created_by || [],
+      cast: data.credits?.cast?.slice(0, 5).map((actor: any) => actor.name) || [],
+      director: data.credits?.crew?.find((person: any) => person.job === 'Director')?.name || '',
+      video: data.videos?.results[0]?.key || null,
+      first_air_date: data.first_air_date || null,
     };
 
-    return NextResponse.json(seriesDetails);
-  } catch (error) {
-    console.error('Error fetching TV series details:', error);
-    return NextResponse.json({ error: 'Failed to fetch TV series details' }, { status: 500 });
+    console.log('Processed TV series data:', processedData); // Log processed data
+    console.log('Processed first air date:', processedData.first_air_date); // Explicitly log processed first_air_date
+
+    return NextResponse.json(processedData);
+  } catch (error: any) {
+    console.error('Error fetching series details:', error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

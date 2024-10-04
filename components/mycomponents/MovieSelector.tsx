@@ -6,7 +6,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Search } from 'lucide-react';
 import Image from 'next/image';
 import React from 'react';
-import { log } from 'console';
 
 interface MediaItem extends Movie {
   name?: string;
@@ -91,8 +90,12 @@ export default function MovieSelector() {
     setHasSearched(true);
     try {
       const [moviesResponse, seriesResponse] = await Promise.all([
-        fetch(`/api/search-movies?query=${encodeURIComponent(searchQuery.trim())}`),
-        fetch(`/api/search-series?query=${encodeURIComponent(searchQuery.trim())}`),
+        fetch(
+          `/api/search-movies?query=${encodeURIComponent(searchQuery.trim())}`
+        ),
+        fetch(
+          `/api/search-series?query=${encodeURIComponent(searchQuery.trim())}`
+        ),
       ]);
 
       if (!moviesResponse.ok || !seriesResponse.ok) {
@@ -109,10 +112,13 @@ export default function MovieSelector() {
       const movies = moviesData.results.map((movie: any) => ({
         ...movie,
         media_type: 'movie',
+        release_date: movie.release_date,
       }));
       const series = seriesData.results.map((series: any) => ({
         ...series,
         media_type: 'tv',
+        first_air_date: series.first_air_date,
+        title: series.name,
       }));
 
       const combinedResults = [...movies, ...series].sort(
@@ -144,6 +150,7 @@ export default function MovieSelector() {
       ...media,
       runtime: 0,
       director: '',
+      created_by: [],
       cast: [],
       production_companies: [],
     });
@@ -153,7 +160,10 @@ export default function MovieSelector() {
         media.media_type === 'movie' ? 'movie-details' : 'series-details';
       const response = await fetch(`/api/${endpoint}?id=${media.id}`);
       const data = await response.json();
-      setSelectedMedia(data);
+      setSelectedMedia({
+        ...data,
+        release_date: data.release_date || data.first_air_date,
+      });
     } catch (error) {
       console.error('Error fetching media details:', error);
       setError('Failed to fetch media details');
@@ -226,27 +236,32 @@ export default function MovieSelector() {
         ) : hasSearched ? (
           <div className='text-center'>
             <Image
-              src="/reel.jpg"
-              alt="Movie reel"
+              src='/reel.jpg'
+              alt='Movie reel'
               width={300}
               height={300}
-              className="mx-auto mb-4"
-              loading="eager"
+              className='mx-auto mb-4'
+              loading='eager'
             />
-            <p className='text-gray-500'>No results found. Try searching for a movie or TV show.</p>
+            <p className='text-gray-500'>
+              No results found. Try searching for a movie or TV show.
+            </p>
           </div>
         ) : (
           <div className='text-center'>
             <Image
-              src="/goodog.png"
-              alt="Goodoog"
+              src='/goodog.png'
+              alt='Goodoog'
               width={300}
               height={300}
-              className="mx-auto mb-4"
-              loading="eager"
+              className='mx-auto mb-4'
+              loading='eager'
             />
-            
-            <p className='text-gray-500'>Start your journey by searching for your favorite movies and TV shows.</p>
+
+            <p className='text-gray-500'>
+              Start your journey by searching for your favorite movies and TV
+              shows.
+            </p>
           </div>
         )}
       </div>
@@ -317,15 +332,14 @@ export default function MovieSelector() {
                       {selectedMedia.title || selectedMedia.name}
                     </h2>
                     <p className='text-gray-300 mb-4'>
-                      {selectedMedia.release_date ||
-                      selectedMedia.first_air_date
-                        ? new Date(
-                            selectedMedia.release_date ||
-                              selectedMedia.first_air_date ||
-                              ''
-                          ).toLocaleDateString()
-                        : 'Release date not available'}{' '}
-                      •
+                      {(() => {
+                        const date =
+                          selectedMedia.release_date ||
+                          selectedMedia.first_air_date;
+                        return date
+                          ? `${new Date(date).getFullYear()} • `
+                          : 'Year not available • ';
+                      })()}
                       {selectedMedia.media_type === 'movie'
                         ? selectedMedia.runtime
                           ? `${selectedMedia.runtime} min`
@@ -353,23 +367,28 @@ export default function MovieSelector() {
                     <div className='mb-4'>
                       <strong className='text-gray-300'>
                         {selectedMedia.media_type === 'movie'
-                          ? 'Director:'
+                          ? 'Director/Writer:'
                           : 'Created by:'}
                       </strong>{' '}
-                      {selectedMedia.media_type === 'movie'
-                        ? selectedMedia.director || 'Not available'
-                        : selectedMedia.created_by && selectedMedia.created_by.length > 0
-                          ? selectedMedia.created_by
-                              .filter(creator => creator && creator.name)
-                              .map(creator => creator.name)
-                              .join(', ') || 'Not available'
-                          : 'Not available'}
+                      {selectedMedia.created_by &&
+                      selectedMedia.created_by.length > 0
+                        ? selectedMedia.created_by
+                            .filter((creator: any) => creator && creator.name)
+                            .map((creator: any) =>
+                              selectedMedia.media_type === 'movie'
+                                ? `${creator.name} (${creator.job})`
+                                : creator.name
+                            )
+                            .join(', ') || 'Not available'
+                        : 'Not available'}
                     </div>
                     <div className='mb-4'>
                       <strong className='text-gray-300'>Cast:</strong>{' '}
                       {selectedMedia.cast && selectedMedia.cast.length > 0
                         ? selectedMedia.cast
-                            .filter(actor => actor && typeof actor === 'string')
+                            .filter(
+                              (actor) => actor && typeof actor === 'string'
+                            )
                             .join(', ') || 'Not available'
                         : 'Not available'}
                     </div>
@@ -378,10 +397,10 @@ export default function MovieSelector() {
                         Production Companies:
                       </strong>{' '}
                       {selectedMedia.production_companies &&
-                       selectedMedia.production_companies.length > 0
+                      selectedMedia.production_companies.length > 0
                         ? selectedMedia.production_companies
-                            .filter(company => company && company.name)
-                            .map(company => company.name)
+                            .filter((company) => company && company.name)
+                            .map((company) => company.name)
                             .join(', ') || 'Not available'
                         : 'Not available'}
                     </div>

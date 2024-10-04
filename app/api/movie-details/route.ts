@@ -1,43 +1,38 @@
 import { NextResponse } from 'next/server';
 
-const TMDB_API_KEY = process.env.TMDB_API_KEY;
-
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const id = searchParams.get('id');
 
   if (!id) {
-    return NextResponse.json({ error: 'Movie ID is required' }, { status: 400 });
+    return NextResponse.json({ error: 'Missing id parameter' }, { status: 400 });
   }
 
+  const apiKey = process.env.TMDB_API_KEY;
+  const url = `https://api.themoviedb.org/3/movie/${id}?api_key=${apiKey}&append_to_response=credits,videos`;
+
   try {
-    const response = await fetch(
-      `https://api.themoviedb.org/3/movie/${id}?api_key=${TMDB_API_KEY}&append_to_response=credits,videos`
-    );
+    const response = await fetch(url);
     const data = await response.json();
 
-    const director = data.credits.crew.find((person: any) => person.job === 'Director')?.name || 'Unknown';
-    const cast = data.credits.cast.slice(0, 5).map((actor: any) => actor.name);
-    const trailer = data.videos.results.find((video: any) => video.type === 'Trailer')?.key || null;
+    if (data.success === false) {
+      throw new Error(data.status_message);
+    }
 
-    const movieDetails = {
-      id: data.id,
-      title: data.title,
-      poster_path: data.poster_path,
-      genre_ids: data.genres.map((genre: any) => genre.id),
-      overview: data.overview,
-      video: trailer,
-      release_date: data.release_date,
-      vote_average: data.vote_average,
-      runtime: data.runtime,
-      director: director,
-      cast: cast,
-      production_companies: data.production_companies.map((company: any) => company.name),
+    const processedData = {
+      ...data,
+      media_type: 'movie',
+      created_by: data.credits?.crew
+        ?.filter((person: any) => person.job === 'Director' || person.job === 'Writer')
+        .map((person: any) => ({ name: person.name, job: person.job })) || [],
+      cast: data.credits?.cast?.slice(0, 5).map((actor: any) => actor.name) || [],
+      director: data.credits?.crew?.find((person: any) => person.job === 'Director')?.name || '',
+      video: data.videos?.results[0]?.key || null,
     };
 
-    return NextResponse.json(movieDetails);
-  } catch (error) {
+    return NextResponse.json(processedData);
+  } catch (error: any) {
     console.error('Error fetching movie details:', error);
-    return NextResponse.json({ error: 'Failed to fetch movie details' }, { status: 500 });
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

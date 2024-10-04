@@ -12,18 +12,24 @@ export interface Movie {
   overview: string;
   video: string | null;
   release_date: string;
+  first_air_date?: string;
   vote_average: number;
-  media_type: "movie" | "tv";
+  media_type: 'movie' | 'tv';
 }
 
 interface MovieCardProps {
   movie: Movie;
   genres: { [id: number]: string };
-  mediaType: string; // Add this line to accept media type
+  mediaType: string;
   onSelect: (movie: Movie) => void;
 }
 
-export default function MovieCard({ movie, genres, mediaType, onSelect }: MovieCardProps) {
+export default function MovieCard({
+  movie,
+  genres,
+  mediaType,
+  onSelect,
+}: MovieCardProps) {
   const [isHovered, setIsHovered] = useState(false);
 
   const posterUrl = movie.poster_path
@@ -38,15 +44,19 @@ export default function MovieCard({ movie, genres, mediaType, onSelect }: MovieC
         .join(' • ')
     : 'Genre not available';
 
-  const year = movie.release_date
-    ? new Date(movie.release_date).getFullYear()
-    : 'Year not available';
+  const year = (() => {
+    const date = movie.release_date || movie.first_air_date;
+    if (date && typeof date === 'string') {
+      return new Date(date).getFullYear();
+    }
+    return 'Year not available';
+  })();
 
   const rating = movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A';
 
   return (
     <motion.div
-      className='relative aspect-[2/3] rounded-lg overflow-hidden cursor-pointer w-full sm:w-auto'
+      className='relative w-full aspect-[2/3] rounded-lg overflow-hidden cursor-pointer'
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={() => onSelect(movie)}
@@ -54,17 +64,21 @@ export default function MovieCard({ movie, genres, mediaType, onSelect }: MovieC
       whileHover={{ scale: 1.05 }}
       transition={{ duration: 0.3 }}
     >
-      <div className="relative">
-        {/* Badge for media type */}
-        <span className={`absolute top-2 left-2 px-2 py-1 text-white rounded text-xs ${mediaType === 'movie' ? 'bg-blue-500' : 'bg-green-500'} opacity-80`}>
+      <div className='relative w-full h-full'>
+        <span
+          className={`absolute top-2 left-2 px-2 py-1 text-white rounded text-xs ${
+            mediaType === 'movie' ? 'bg-blue-500' : 'bg-green-500'
+          } opacity-80 z-10`}
+        >
           {mediaType === 'movie' ? 'Movie' : 'TV Show'}
         </span>
         <Image
           src={posterUrl}
           alt={movie.title}
-          className='w-full h-full object-cover'
-          width={500}
-          height={500}
+          fill
+          sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
+          style={{ objectFit: 'cover' }}
+          className='rounded-lg'
         />
         <div className='absolute inset-x-0 bottom-0 bg-gradient-to-t from-black to-transparent p-4'>
           <h3 className='text-white text-lg font-bold mb-1 line-clamp-2'>
@@ -80,7 +94,7 @@ export default function MovieCard({ movie, genres, mediaType, onSelect }: MovieC
         </div>
         {isHovered && (
           <motion.div
-            className='absolute inset-0 bg-black bg-opacity-75 p-4 flex flex-col justify-end  sm:flex'
+            className='absolute inset-0 bg-black bg-opacity-75 p-4 flex flex-col justify-end'
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.3 }}
