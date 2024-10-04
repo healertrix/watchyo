@@ -15,8 +15,7 @@ interface MediaItem extends Movie {
 interface MediaDetails extends MediaItem {
   runtime?: number;
   number_of_seasons?: number;
-  director?: string;
-  created_by?: { name: string }[];
+  creative_team?: { role: string; name: string }[];
   cast: string[];
   production_companies: { name: string }[];
   genres?: { id: number; name: string }[];
@@ -149,8 +148,7 @@ export default function MovieSelector() {
     setSelectedMedia({
       ...media,
       runtime: 0,
-      director: '',
-      created_by: [],
+      creative_team: media.creative_team || [],
       cast: [],
       production_companies: [],
     });
@@ -163,6 +161,7 @@ export default function MovieSelector() {
       setSelectedMedia({
         ...data,
         release_date: data.release_date || data.first_air_date,
+        creative_team: data.creative_team || media.creative_team || [],
       });
     } catch (error) {
       console.error('Error fetching media details:', error);
@@ -185,6 +184,20 @@ export default function MovieSelector() {
   const handleYoutubeError = useCallback(() => {
     setYoutubeError(true);
   }, []);
+
+  const formatCreativeTeam = (creativeTeam: { role: string; name: string }[]) => {
+    const directors = creativeTeam.filter(member => member.role === 'Director').slice(0, 2);
+    const producers = creativeTeam.filter(member => member.role === 'Producer').slice(0, 2);
+    const writer = creativeTeam.find(member => member.role === 'Writer');
+
+    const formattedTeam = [
+      ...directors.map(d => `${d.name} (Director)`),
+      ...producers.map(p => `${p.name} (Producer)`),
+      writer ? `${writer.name} (Writer)` : null
+    ].filter(Boolean);
+
+    return formattedTeam.join(', ') || 'Not available';
+  };
 
   return (
     <div className='min-h-screen text-white dark:text-gray-200'>
@@ -365,31 +378,15 @@ export default function MovieSelector() {
                       {selectedMedia.overview || 'No overview available'}
                     </p>
                     <div className='mb-4'>
-                      <strong className='text-gray-300'>
-                        {selectedMedia.media_type === 'movie'
-                          ? 'Director/Writer:'
-                          : 'Created by:'}
-                      </strong>{' '}
-                      {selectedMedia.created_by &&
-                      selectedMedia.created_by.length > 0
-                        ? selectedMedia.created_by
-                            .filter((creator: any) => creator && creator.name)
-                            .map((creator: any) =>
-                              selectedMedia.media_type === 'movie'
-                                ? `${creator.name} (${creator.job})`
-                                : creator.name
-                            )
-                            .join(', ') || 'Not available'
+                      <strong className='text-gray-300'>Creative Team:</strong>{' '}
+                      {selectedMedia.creative_team && selectedMedia.creative_team.length > 0
+                        ? formatCreativeTeam(selectedMedia.creative_team)
                         : 'Not available'}
                     </div>
                     <div className='mb-4'>
                       <strong className='text-gray-300'>Cast:</strong>{' '}
                       {selectedMedia.cast && selectedMedia.cast.length > 0
-                        ? selectedMedia.cast
-                            .filter(
-                              (actor) => actor && typeof actor === 'string'
-                            )
-                            .join(', ') || 'Not available'
+                        ? selectedMedia.cast.join(', ')
                         : 'Not available'}
                     </div>
                     <div className='mb-4'>
@@ -399,9 +396,8 @@ export default function MovieSelector() {
                       {selectedMedia.production_companies &&
                       selectedMedia.production_companies.length > 0
                         ? selectedMedia.production_companies
-                            .filter((company) => company && company.name)
                             .map((company) => company.name)
-                            .join(', ') || 'Not available'
+                            .join(', ')
                         : 'Not available'}
                     </div>
                     <div className='flex items-center justify-between'>
