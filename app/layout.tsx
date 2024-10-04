@@ -7,8 +7,8 @@ const inter = Inter({ subsets: ["latin"] });
 import Navbar from '@/components/mycomponents/Navbar';
 
 export const metadata: Metadata = {
-  title: "EloRate",
-  description: "Let's Elo rate everything",
+  title: "RateWise",
+  description: "RateWise is a platform for rating and reviewing movies and TV shows with friends",
 };
 
 export default function RootLayout({
