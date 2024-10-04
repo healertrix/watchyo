@@ -30,6 +30,7 @@ interface Genre {
 export default function MovieSelector() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<MediaItem[]>([]);
+  const [hasSearched, setHasSearched] = useState(false);
   const [genres, setGenres] = useState<{ [id: number]: string }>({});
   const [isLoading, setIsLoading] = useState(false);
   const [trailerKey, setTrailerKey] = useState<string | null>(null);
@@ -77,12 +78,20 @@ export default function MovieSelector() {
   };
 
   const searchMedia = async () => {
+    if (!searchQuery.trim()) {
+      setError('Please enter a search term');
+      setSearchResults([]);
+      setHasSearched(false);
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
+    setHasSearched(true);
     try {
       const [moviesResponse, seriesResponse] = await Promise.all([
-        fetch(`/api/search-movies?query=${encodeURIComponent(searchQuery)}`),
-        fetch(`/api/search-series?query=${encodeURIComponent(searchQuery)}`),
+        fetch(`/api/search-movies?query=${encodeURIComponent(searchQuery.trim())}`),
+        fetch(`/api/search-series?query=${encodeURIComponent(searchQuery.trim())}`),
       ]);
 
       if (!moviesResponse.ok || !seriesResponse.ok) {
@@ -157,7 +166,7 @@ export default function MovieSelector() {
   };
 
   const handleKeyPress = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter') {
+    if (event.key === 'Enter' && searchQuery.trim()) {
       searchMedia();
     }
   };
@@ -181,7 +190,8 @@ export default function MovieSelector() {
             />
             <button
               onClick={searchMedia}
-              className='absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors'
+              disabled={!searchQuery.trim()}
+              className='absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
               aria-label='Search'
             >
               <Search size={20} />
@@ -195,23 +205,48 @@ export default function MovieSelector() {
           </div>
         ) : error ? (
           <div className='text-center text-red-500'>{error}</div>
-        ) : (
+        ) : searchResults && searchResults.length > 0 ? (
           <motion.div
             className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4'
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
           >
-              {searchResults.map((media) => (
-                <MovieCard
-                  key={`${media.media_type}-${media.id}`}
-                  movie={media}
-                  genres={genres}
-                  mediaType={media.media_type}
-                  onSelect={handleSelectMedia}
-                />
-              ))}
+            {searchResults.map((media) => (
+              <MovieCard
+                key={`${media.media_type}-${media.id}`}
+                movie={media}
+                genres={genres}
+                mediaType={media.media_type}
+                onSelect={handleSelectMedia}
+              />
+            ))}
           </motion.div>
+        ) : hasSearched ? (
+          <div className='text-center'>
+            <Image
+              src="/reel.jpg"
+              alt="Movie reel"
+              width={300}
+              height={300}
+              className="mx-auto mb-4"
+              loading="eager"
+            />
+            <p className='text-gray-500'>No results found. Try searching for a movie or TV show.</p>
+          </div>
+        ) : (
+          <div className='text-center'>
+            <Image
+              src="/goodog.png"
+              alt="Goodoog"
+              width={300}
+              height={300}
+              className="mx-auto mb-4"
+              loading="eager"
+            />
+            
+            <p className='text-gray-500'>Start your journey by searching for your favorite movies and TV shows.</p>
+          </div>
         )}
       </div>
 

@@ -8,7 +8,7 @@ export interface Movie {
   id: number;
   title: string;
   poster_path: string | null;
-  genre_ids: number[];
+  genre_ids: number[] | undefined;
   overview: string;
   video: string | null;
   release_date: string;
@@ -30,12 +30,13 @@ export default function MovieCard({ movie, genres, mediaType, onSelect }: MovieC
     ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
     : '/movie.png';
 
-  const movieGenres =
-    movie.genre_ids
-      .map((id) => genres[id])
-      .filter(Boolean)
-      .slice(0, 2)
-      .join(' • ') || 'Genre not available';
+  const movieGenres = movie.genre_ids
+    ? movie.genre_ids
+        .map((id) => genres[id])
+        .filter(Boolean)
+        .slice(0, 2)
+        .join(' • ')
+    : 'Genre not available';
 
   const year = movie.release_date
     ? new Date(movie.release_date).getFullYear()
