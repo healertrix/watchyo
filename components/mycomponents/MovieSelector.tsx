@@ -415,8 +415,11 @@ export default function MovieSelector() {
                     </p>
                     <div className='mb-4'>
                       <strong className='text-gray-300'>Creative Team:</strong>{' '}
-                      {selectedMedia.creative_team && selectedMedia.creative_team.length > 0
-                        ? formatCreativeTeam(selectedMedia.creative_team)
+                      {selectedMedia.creative_team &&
+                      selectedMedia.creative_team.length > 0
+                        ? selectedMedia.creative_team
+                            .map((teamMember) => teamMember.name)
+                            .join(', ')
                         : 'Not available'}
                     </div>
                     <div className='mb-4'>

@@ -79,6 +79,8 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ mediaType, id }) => {
             src={embedUrl}
             className='w-full h-full'
             allowFullScreen
+            title='Video Player'
+            allow='autoplay'
           ></iframe>
         ) : (
           <div className='flex items-center justify-center h-full'>
