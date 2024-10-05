@@ -1,9 +1,11 @@
+import React, { Suspense } from 'react';
 import MovieSelector from '@/components/mycomponents/MovieSelector';
+import LoadingSkeleton from './loading';
 
 export default function SelectPage() {
   return (
-    <div>
+    <Suspense fallback={<LoadingSkeleton />}>
       <MovieSelector />
-    </div>
+    </Suspense>
   );
 }
