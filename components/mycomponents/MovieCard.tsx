@@ -16,6 +16,7 @@ export interface Movie {
   first_air_date?: string;
   vote_average: number;
   media_type: 'movie' | 'tv';
+  creative_team?: { role: string; name: string }[];
 }
 
 interface MovieCardProps {
@@ -56,6 +57,26 @@ export default function MovieCard({
   })();
 
   const rating = movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A';
+
+  console.log('Movie data:', movie);
+
+  const formatCreativeTeam = (creativeTeam: { role: string; name: string }[]) => {
+    const directors = creativeTeam.filter(member => member.role === 'Director').slice(0, 2);
+    const producers = creativeTeam.filter(member => member.role === 'Producer').slice(0, 2);
+    const writer = creativeTeam.find(member => member.role === 'Writer');
+
+    const formattedTeam = [
+      ...directors.map(d => `${d.name} (Director)`),
+      ...producers.map(p => `${p.name} (Producer)`),
+      writer ? `${writer.name} (Writer)` : null
+    ].filter(Boolean);
+
+    return formattedTeam.join(', ') || 'Creative team not available';
+  };
+
+  const creativeTeam = movie.creative_team
+    ? formatCreativeTeam(movie.creative_team)
+    : 'Creative team not available';
 
   return (
     <motion.div
