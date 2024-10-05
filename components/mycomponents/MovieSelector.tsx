@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Search } from 'lucide-react';
 import Image from 'next/image';
 import React from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 interface MediaItem extends Movie {
   name?: string;
@@ -38,10 +39,23 @@ export default function MovieSelector() {
   const [selectedMedia, setSelectedMedia] = useState<MediaDetails | null>(null);
   const [isModalLoading, setIsModalLoading] = useState(false);
   const [youtubeError, setYoutubeError] = useState(false);
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
-    fetchGenres();
-  }, []);
+    const query = searchParams?.get('q');
+    const selectedMediaId = searchParams?.get('selectedMediaId');
+    const selectedMediaType = searchParams?.get('selectedMediaType');
+
+    if (query && query !== searchQuery) {
+      setSearchQuery(query);
+      searchMedia(query);
+    }
+
+    if (selectedMediaId && selectedMediaType && !selectedMedia) {
+      fetchMediaDetails(selectedMediaId, selectedMediaType);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     if (selectedMedia) {
@@ -77,8 +91,8 @@ export default function MovieSelector() {
     }
   };
 
-  const searchMedia = async () => {
-    if (!searchQuery.trim()) {
+  const searchMedia = useCallback(async (query: string = searchQuery) => {
+    if (!query.trim()) {
       setError('Please enter a search term');
       setSearchResults([]);
       setHasSearched(false);
@@ -90,12 +104,8 @@ export default function MovieSelector() {
     setHasSearched(true);
     try {
       const [moviesResponse, seriesResponse] = await Promise.all([
-        fetch(
-          `/api/search-movies?query=${encodeURIComponent(searchQuery.trim())}`
-        ),
-        fetch(
-          `/api/search-series?query=${encodeURIComponent(searchQuery.trim())}`
-        ),
+        fetch(`/api/search-movies?query=${encodeURIComponent(query.trim())}`),
+        fetch(`/api/search-series?query=${encodeURIComponent(query.trim())}`),
       ]);
 
       if (!moviesResponse.ok || !seriesResponse.ok) {
@@ -126,6 +136,7 @@ export default function MovieSelector() {
       );
 
       setSearchResults(combinedResults);
+      updateURLParams(query);
     } catch (error) {
       console.error('Error searching media:', error);
       setError(
@@ -135,7 +146,24 @@ export default function MovieSelector() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [searchQuery]);
+
+  const updateURLParams = useCallback((
+    query: string,
+    mediaId?: string,
+    mediaType?: string
+  ) => {
+    const newParams = new URLSearchParams(searchParams?.toString());
+    newParams.set('q', query);
+    if (mediaId && mediaType) {
+      newParams.set('selectedMediaId', mediaId);
+      newParams.set('selectedMediaType', mediaType);
+    } else {
+      newParams.delete('selectedMediaId');
+      newParams.delete('selectedMediaType');
+    }
+    router.push(`/select?${newParams.toString()}`, { scroll: false });
+  }, [router, searchParams]);
 
   const handlePlayTrailer = (videoKey: string) => {
     setTrailerKey(videoKey);
@@ -156,14 +184,7 @@ export default function MovieSelector() {
     });
     setIsModalLoading(true);
     try {
-      const endpoint =
-        media.media_type === 'movie' ? 'movie-details' : 'series-details';
-      const response = await fetch(`/api/${endpoint}?id=${media.id}`);
-      const data = await response.json();
-      setSelectedMedia({
-        ...data,
-        release_date: data.release_date || data.first_air_date,
-      });
+      await fetchMediaDetails(media.id.toString(), media.media_type);
     } catch (error) {
       console.error('Error fetching media details:', error);
       setError('Failed to fetch media details');
@@ -186,6 +207,35 @@ export default function MovieSelector() {
     setYoutubeError(true);
   }, []);
 
+  const handleWatchOnline = useCallback(
+    (mediaType: string, id: string) => {
+      router.push(
+        `/watch/${mediaType}/${id}?q=${encodeURIComponent(
+          searchQuery
+        )}&selectedMediaId=${id}&selectedMediaType=${mediaType}`
+      );
+    },
+    [router, searchQuery]
+  );
+
+  const fetchMediaDetails = useCallback(async (id: string, mediaType: string) => {
+    try {
+      const endpoint =
+        mediaType === 'movie' ? 'movie-details' : 'series-details';
+      const response = await fetch(`/api/${endpoint}?id=${id}`);
+      const data = await response.json();
+      setSelectedMedia({
+        ...data,
+        release_date: data.release_date || data.first_air_date,
+        media_type: mediaType,
+      });
+      updateURLParams(searchQuery, id, mediaType);
+    } catch (error) {
+      console.error('Error fetching media details:', error);
+      setError('Failed to fetch media details');
+    }
+  }, [searchQuery, updateURLParams]);
+
   return (
     <div className='min-h-screen text-white dark:text-gray-200'>
       <div className='px-4 py-8'>
@@ -200,7 +250,7 @@ export default function MovieSelector() {
               className='w-full p-4 pr-12 bg-white dark:bg-gray-800 text-gray-800 dark:text-white rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 border border-gray-300 dark:border-gray-700 shadow-md'
             />
             <button
-              onClick={searchMedia}
+              onClick={() => searchMedia(searchQuery)}
               disabled={!searchQuery.trim()}
               className='absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
               aria-label='Search'
@@ -230,6 +280,7 @@ export default function MovieSelector() {
                 genres={genres}
                 mediaType={media.media_type}
                 onSelect={handleSelectMedia}
+                onWatchOnline={handleWatchOnline}
               />
             ))}
           </motion.div>
@@ -411,12 +462,25 @@ export default function MovieSelector() {
                           ? selectedMedia.vote_average.toFixed(1)
                           : 'N/A'}
                       </div>
-                      <button
-                        onClick={closeModal}
-                        className='bg-red-600 text-white px-4 py-2 rounded-full text-sm font-semibold hover:bg-red-700 transition-colors'
-                      >
-                        Close
-                      </button>
+                      <div>
+                        <button
+                          onClick={() =>
+                            handleWatchOnline(
+                              selectedMedia.media_type,
+                              selectedMedia.id.toString()
+                            )
+                          }
+                          className='bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-semibold hover:bg-blue-700 transition-colors mr-2'
+                        >
+                          Watch Online
+                        </button>
+                        <button
+                          onClick={closeModal}
+                          className='bg-red-600 text-white px-4 py-2 rounded-full text-sm font-semibold hover:bg-red-700 transition-colors'
+                        >
+                          Close
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </>

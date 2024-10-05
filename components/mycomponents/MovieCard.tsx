@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
+import { PlayCircle } from 'lucide-react';
 
 export interface Movie {
   id: number;
@@ -22,6 +23,7 @@ interface MovieCardProps {
   genres: { [id: number]: string };
   mediaType: string;
   onSelect: (movie: Movie) => void;
+  onWatchOnline: (mediaType: string, id: string) => void;
 }
 
 export default function MovieCard({
@@ -29,6 +31,7 @@ export default function MovieCard({
   genres,
   mediaType,
   onSelect,
+  onWatchOnline,
 }: MovieCardProps) {
   const [isHovered, setIsHovered] = useState(false);
 
@@ -108,10 +111,20 @@ export default function MovieCard({
             <p className='text-gray-300 text-sm mb-2 line-clamp-3'>
               {movie.overview || 'No overview available'}
             </p>
-            <div className='flex items-center'>
-              <div className='bg-yellow-500 text-black px-2 py-1 rounded text-sm mr-2'>
+            <div className='flex items-center justify-between'>
+              <div className='bg-yellow-500 text-black px-2 py-1 rounded text-sm'>
                 IMDb {rating}
               </div>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onWatchOnline(movie.media_type, movie.id.toString());
+                }}
+                className='bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold hover:bg-blue-700 transition-colors flex items-center'
+              >
+                <PlayCircle size={16} className="mr-1" />
+                Watch Online
+              </button>
             </div>
           </motion.div>
         )}
