@@ -2,11 +2,22 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
+interface MediaItem {
+  id: number;
+  title?: string;
+  name?: string;
+  poster_path: string | null;
+  release_date?: string;
+  first_air_date?: string;
+  vote_average: number;
+  media_type: 'movie' | 'tv';
+}
+
 interface MediaContextType {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
-  searchResults: any[];
-  setSearchResults: (results: any[]) => void;
+  searchResults: MediaItem[];
+  setSearchResults: React.Dispatch<React.SetStateAction<MediaItem[]>>;
   hasSearched: boolean;
   setHasSearched: (hasSearched: boolean) => void;
 }
@@ -23,7 +34,7 @@ export const useMediaContext = () => {
 
 export const MediaProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
+  const [searchResults, setSearchResults] = useState<MediaItem[]>([]);
   const [hasSearched, setHasSearched] = useState(false);
 
   useEffect(() => {
