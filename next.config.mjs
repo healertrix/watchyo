@@ -5,21 +5,23 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: '**.googleusercontent.com', // Fix wildcard usage
+        hostname: '*.googleusercontent.com',
       },
       {
         protocol: 'https',
-        hostname: '**.pixel.com', // Fix wildcard usage
+        hostname: '*.pixel.com',
       },
       {
         protocol: 'https',
-        hostname: 'images.pexels.com', // Add Pexels hostname
+        hostname: 'images.pexels.com',
       },
       {
         protocol: 'https',
-        hostname: '**.tmdb.org', // Add TMDb hostname
+        hostname: 'image.tmdb.org',
+        pathname: '/t/p/**',
       },
     ],
+    domains: ['image.tmdb.org'],
   },
 };
 
