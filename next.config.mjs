@@ -15,13 +15,9 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'images.pexels.com',
       },
-      {
-        protocol: 'https',
-        hostname: 'image.tmdb.org',
-        pathname: '/t/p/**',
-      },
     ],
     domains: ['image.tmdb.org'],
+    unoptimized: true,
   },
 };
 
