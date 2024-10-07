@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { ArrowLeft } from 'lucide-react';
 
 interface VideoPlayerProps {
   mediaType: 'movie' | 'tv';
@@ -30,7 +31,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ mediaType, id }) => {
 
   const handleBack = () => {
     if (mediaType === 'tv') {
-      router.push(`/tv/${id}?q=${encodeURIComponent(searchQuery)}`);
+      router.push(`/tv/${id}?q=${encodeURIComponent(searchQuery)}&season=${season}`);
     } else {
       const selectedMediaId = searchParams?.get('selectedMediaId') || '';
       const selectedMediaType = searchParams?.get('selectedMediaType') || '';
@@ -42,8 +43,17 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ mediaType, id }) => {
   };
 
   return (
-    <div className='flex flex-col h-screen'>
-      <div className='flex-grow relative'>
+    <div className='relative h-screen bg-black'>
+      <div className='absolute left-10 top-6 z-10'>
+        <button
+          onClick={handleBack}
+          className='bg-gray-800 bg-opacity-70 text-white p-3 rounded-full hover:bg-opacity-100 transition-all duration-200'
+          aria-label={`Back to ${mediaType === 'tv' ? 'TV Show' : 'Search'}`}
+        >
+          <ArrowLeft size={24} />
+        </button>
+      </div>
+      <div className='h-full'>
         {embedUrl ? (
           <iframe
             src={embedUrl}
@@ -57,14 +67,6 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ mediaType, id }) => {
             <div className='animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500'></div>
           </div>
         )}
-      </div>
-      <div className='p-4'>
-        <button
-          onClick={handleBack}
-          className='bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-semibold hover:bg-blue-700 transition-colors'
-        >
-          Back to {mediaType === 'tv' ? 'TV Show' : 'Search'}
-        </button>
       </div>
     </div>
   );
