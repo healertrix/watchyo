@@ -207,11 +207,15 @@ export default function MovieSelector() {
 
   const handleWatchOnline = useCallback(
     (mediaType: string, id: string) => {
-      router.push(
-        `/watch/${mediaType}/${id}?q=${encodeURIComponent(
-          searchQuery
-        )}&selectedMediaId=${id}&selectedMediaType=${mediaType}`
-      );
+      if (mediaType === 'tv') {
+        router.push(`/tv/${id}?q=${encodeURIComponent(searchQuery)}`);
+      } else {
+        router.push(
+          `/watch/${mediaType}/${id}?q=${encodeURIComponent(
+            searchQuery
+          )}&selectedMediaId=${id}&selectedMediaType=${mediaType}`
+        );
+      }
     },
     [router, searchQuery]
   );
