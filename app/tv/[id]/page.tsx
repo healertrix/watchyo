@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
-import { ChevronDown, Calendar, Clock } from 'lucide-react';
+import { ChevronDown, Calendar, Clock, ArrowLeft } from 'lucide-react';
 import Loading from './loading';
 
 interface Episode {
@@ -45,6 +45,7 @@ export default function TVShowPage() {
   const [selectedSeason, setSelectedSeason] = useState(1);
   const [isSeasonDropdownOpen, setIsSeasonDropdownOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [originalSearchQuery, setOriginalSearchQuery] = useState('');
 
   useEffect(() => {
     if (id) {
@@ -53,6 +54,10 @@ export default function TVShowPage() {
       setSelectedSeason(initialSeason);
       setIsLoading(true);
       fetchTVShowDetails(id, initialSeason);
+      
+      // Store the original search query
+      const query = searchParams?.get('q') || '';
+      setOriginalSearchQuery(query);
     }
   }, [id, searchParams]);
 
@@ -83,8 +88,18 @@ export default function TVShowPage() {
   const handleSeasonChange = (seasonNumber: number) => {
     setSelectedSeason(seasonNumber);
     setIsSeasonDropdownOpen(false);
-    router.replace(`/tv/${id}?season=${seasonNumber}`);
+    
+    // Update the URL with the new season, but keep the original search query
+    const newSearchParams = new URLSearchParams(searchParams?.toString());
+    newSearchParams.set('season', seasonNumber.toString());
+    router.replace(`/tv/${id}?${newSearchParams.toString()}`);
+    
     fetchTVShowDetails(id, seasonNumber);
+  };
+
+  const handleBackToSearch = () => {
+    // Use the original search query when navigating back
+    router.push(`/select?q=${encodeURIComponent(originalSearchQuery)}`);
   };
 
   if (isLoading) {
@@ -97,24 +112,33 @@ export default function TVShowPage() {
 
   return (
     <div className='min-h-screen bg-gray-900 text-white'>
-      <div className='relative h-[30vh] sm:h-[50vh]'>
-        <Image
-          src={`https://image.tmdb.org/t/p/original${tvShow.backdrop_path}`}
-          alt={tvShow.name}
-          layout='fill'
-          objectFit='cover'
-          className='opacity-50'
-        />
-        <div className='absolute bottom-0 left-0 p-4 sm:p-8 bg-gradient-to-t from-gray-900 w-full'>
-          <h1 className='text-2xl sm:text-4xl font-bold mb-2'>{tvShow.name}</h1>
-          <p className='text-sm sm:text-lg mb-2 sm:mb-4 line-clamp-3'>
-            {tvShow.overview}
-          </p>
-          <div className='flex items-center text-xs sm:text-sm text-gray-300'>
-            <Calendar className='w-4 h-4 mr-1' />
-            <span className='mr-4'>{tvShow.first_air_date?.split('-')[0]}</span>
-            <Clock className='w-4 h-4 mr-1' />
-            <span>{tvShow.seasons.length} Seasons</span>
+      <div className='relative'>
+        <button
+          onClick={handleBackToSearch}
+          className='absolute top-4 left-4 z-10 bg-gray-800 bg-opacity-70 text-white p-2 rounded-full hover:bg-opacity-100 transition-all duration-200'
+          aria-label='Back to search'
+        >
+          <ArrowLeft size={24} />
+        </button>
+        <div className='relative h-[30vh] sm:h-[50vh]'>
+          <Image
+            src={`https://image.tmdb.org/t/p/original${tvShow.backdrop_path}`}
+            alt={tvShow.name}
+            layout='fill'
+            objectFit='cover'
+            className='opacity-50'
+          />
+          <div className='absolute bottom-0 left-0 p-4 sm:p-8 bg-gradient-to-t from-gray-900 w-full'>
+            <h1 className='text-2xl sm:text-4xl font-bold mb-2'>{tvShow.name}</h1>
+            <p className='text-sm sm:text-lg mb-2 sm:mb-4 line-clamp-3'>
+              {tvShow.overview}
+            </p>
+            <div className='flex items-center text-xs sm:text-sm text-gray-300'>
+              <Calendar className='w-4 h-4 mr-1' />
+              <span className='mr-4'>{tvShow.first_air_date?.split('-')[0]}</span>
+              <Clock className='w-4 h-4 mr-1' />
+              <span>{tvShow.seasons.length} Seasons</span>
+            </div>
           </div>
         </div>
       </div>
