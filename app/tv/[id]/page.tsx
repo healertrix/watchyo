@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { ChevronDown, Calendar, Clock } from 'lucide-react';
 import Loading from './loading';
@@ -38,6 +38,7 @@ interface TVShow {
 
 export default function TVShowPage() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const id = params?.id as string;
   const router = useRouter();
   const [tvShow, setTVShow] = useState<TVShow | null>(null);
@@ -47,10 +48,13 @@ export default function TVShowPage() {
 
   useEffect(() => {
     if (id) {
+      const seasonParam = searchParams?.get('season');
+      const initialSeason = seasonParam ? parseInt(seasonParam, 10) : 1;
+      setSelectedSeason(initialSeason);
       setIsLoading(true);
-      fetchTVShowDetails(id, selectedSeason);
+      fetchTVShowDetails(id, initialSeason);
     }
-  }, [id, selectedSeason]);
+  }, [id, searchParams]);
 
   const fetchTVShowDetails = async (showId: string, season: number) => {
     try {
@@ -74,6 +78,13 @@ export default function TVShowPage() {
 
   const toggleSeasonDropdown = () => {
     setIsSeasonDropdownOpen(!isSeasonDropdownOpen);
+  };
+
+  const handleSeasonChange = (seasonNumber: number) => {
+    setSelectedSeason(seasonNumber);
+    setIsSeasonDropdownOpen(false);
+    router.replace(`/tv/${id}?season=${seasonNumber}`);
+    fetchTVShowDetails(id, seasonNumber);
   };
 
   if (isLoading) {
@@ -130,10 +141,7 @@ export default function TVShowPage() {
                 {tvShow.seasons.map((season) => (
                   <button
                     key={season.season_number}
-                    onClick={() => {
-                      setSelectedSeason(season.season_number);
-                      setIsSeasonDropdownOpen(false);
-                    }}
+                    onClick={() => handleSeasonChange(season.season_number)}
                     className='w-full text-left px-6 py-4 hover:bg-gray-700 transition-colors text-lg'
                   >
                     {season.name}
