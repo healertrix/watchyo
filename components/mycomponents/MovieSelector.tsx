@@ -335,7 +335,7 @@ export default function MovieSelector() {
             >
               <button
                 onClick={closeModal}
-                className='absolute top-4 right-4 text-white text-2xl bg-blue-600 w-10 h-10 rounded-full flex items-center justify-center z-20 hover:bg-blue-700 transition-colors'
+                className='absolute top-2 right-2 sm:top-4 sm:right-4 md:top-8 md:right-4 text-white text-2xl bg-blue-600 w-10 h-10 rounded-full flex items-center justify-center z-20 hover:bg-blue-700 transition-colors'
                 aria-label='Close'
               >
                 &times;
