@@ -31,8 +31,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ mediaType, id }) => {
 
   const handleBack = () => {
     if (mediaType === 'tv') {
-      const query = searchParams?.get('q') || '';
-      router.push(`/tv/${id}?q=${encodeURIComponent(query)}&season=${season}`);
+      router.push(`/tv/${id}?q=${encodeURIComponent(searchQuery)}&season=${season}`);
     } else {
       const selectedMediaId = searchParams?.get('selectedMediaId') || '';
       const selectedMediaType = searchParams?.get('selectedMediaType') || '';

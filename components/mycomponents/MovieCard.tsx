@@ -58,7 +58,7 @@ export default function MovieCard({
 
   const rating = movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A';
 
-  console.log('Movie data:', movie);
+  // console.log('Movie data:', movie);
 
   const formatCreativeTeam = (creativeTeam: { role: string; name: string }[]) => {
     const directors = creativeTeam.filter(member => member.role === 'Director').slice(0, 2);

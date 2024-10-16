@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
       })
     );
 
-    console.log('Movies with details:', moviesWithDetails);
+    // console.log('Movies with details:', moviesWithDetails);
     return NextResponse.json({ results: moviesWithDetails });
   } catch (error) {
     console.error('Error searching movies:', error);

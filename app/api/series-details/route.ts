@@ -19,8 +19,8 @@ export async function GET(request: Request) {
       throw new Error(data.status_message);
     }
 
-    console.log('Raw TV series data:', data); // Log raw data
-    console.log('First air date:', data.first_air_date); // Explicitly log first_air_date
+    // console.log('Raw TV series data:', data); // Log raw data
+    // console.log('First air date:', data.first_air_date); // Explicitly log first_air_date
 
     const processedData = {
       ...data,
@@ -32,8 +32,8 @@ export async function GET(request: Request) {
       first_air_date: data.first_air_date || null,
     };
 
-    console.log('Processed TV series data:', processedData); // Log processed data
-    console.log('Processed first air date:', processedData.first_air_date); // Explicitly log processed first_air_date
+    // console.log('Processed TV series data:', processedData); // Log processed data
+    // console.log('Processed first air date:', processedData.first_air_date); // Explicitly log processed first_air_date
 
     return NextResponse.json(processedData);
   } catch (error: any) {
