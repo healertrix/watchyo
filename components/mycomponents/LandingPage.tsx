@@ -11,7 +11,7 @@ export default function LandingPage() {
             Discover, Watch, and Rate with RateWise
           </h1>
           <p className='text-xl md:text-2xl mb-12 text-gray-800 dark:text-gray-400 drop-shadow-md'>
-            Search for any movie or TV show, watch it instantly, and share your
+            Search any movie or TV show, watch it instantly, and share your
             ratings. Your ultimate entertainment companion for finding,
             enjoying, and reviewing content.
           </p>
