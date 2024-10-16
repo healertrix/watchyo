@@ -77,7 +77,7 @@ export default function TVShowPage() {
 
   const handleWatchEpisode = (seasonNumber: number, episodeNumber: number) => {
     router.push(
-      `/watch/tv/${id}?season=${seasonNumber}&episode=${episodeNumber}`
+      `/watch/tv/${id}?season=${seasonNumber}&episode=${episodeNumber}&q=${originalSearchQuery}`
     );
   };
 
