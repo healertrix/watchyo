@@ -11,7 +11,10 @@ export default function LandingPage() {
             Discover, Stream, and Explore with WatchYo
           </h1>
           <p className='text-xl md:text-2xl mb-12 text-gray-800 dark:text-gray-400 drop-shadow-md'>
-            Your ultimate entertainment hub for movies, TV shows, and anime. Search, discover, watch trailers, and stream your favorite content in the best available quality. Experience entertainment like never before.
+            Your ultimate entertainment hub for movies, TV shows, and anime.
+            Search, discover, watch trailers, and stream your favorite content
+            in the best available quality. Experience entertainment like never
+            before.
           </p>
           <div className='space-y-4 md:space-y-0 md:space-x-4'>
             <Link href='/select'>
@@ -54,7 +57,17 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className='text-center py-6 text-gray-400 relative z-10'>
-        <p>&copy; 2024 WatchYo. All rights reserved.</p>
+        <p>
+          &copy; 2024 WatchYo. Made with ❤️ by {' '}
+          <a
+            href='https://x.com/healertrix'
+            target='_blank'
+            rel='noopener noreferrer'
+          >
+            <u>healertrix</u>
+          </a>
+          . All rights reserved.
+        </p>
       </footer>
     </div>
   );
