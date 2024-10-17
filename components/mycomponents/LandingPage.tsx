@@ -27,7 +27,7 @@ export default function LandingPage() {
       </main>
 
       {/* Features Section */}
-      <section className='py-16 bg-gray-50 dark:bg-gray-900 bg-opacity-90 dark:bg-opacity-0 relative z-10 rounded-lg shadow-lg'>
+      <section className='py-14 bg-gray-50 dark:bg-gray-900 bg-opacity-90 dark:bg-opacity-50 relative z-10 rounded-lg shadow-lg'>
         <div className='max-w-6xl mx-auto px-4'>
           <h2 className='text-3xl md:text-5xl font-bold text-center mb-12 text-gray-800 dark:text-white'>
             Unleash the Power of WatchWise
