@@ -3,12 +3,11 @@
 # WatchWise 🎬
 
 [![Website](https://img.shields.io/badge/Visit-WatchWise-blue)](https://elorate.vercel.app/)
-[![GitHub stars](https://img.shields.io/github/stars/your-username/watchwise?style=social)](https://github.com/your-username/watchwise/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/your-username/watchwise?style=social)](https://github.com/your-username/watchwise/network/members)
+
 
 Your ultimate entertainment hub for movies, TV shows, and anime.
 
-![WatchWise Banner](@readmepic/banner.png)
+![WatchWise Banner](/readmepic/home.png)
 
 </div>
 
@@ -16,7 +15,7 @@ Your ultimate entertainment hub for movies, TV shows, and anime.
 
 <div align="center">
 
-![Features](@readmepic/features.png)
+![Features](/readmepic/search.png)
 
 </div>
 
@@ -54,7 +53,7 @@ Your ultimate entertainment hub for movies, TV shows, and anime.
 
 <div align="center">
 
-![App Screenshot](@readmepic/screenshot.png)
+![App Screenshot](/readmepic/watch.png)
 
 </div>
 
@@ -79,21 +78,12 @@ To learn more about the technologies used in this project, check out the followi
 
 WatchWise is deployed on [Vercel](https://vercel.com/). Visit the live site at [https://elorate.vercel.app/](https://elorate.vercel.app/).
 
-<div align="center">
-
-![Deployment](@readmepic/deployment.png)
-
-</div>
 
 ## 🤝 Contributing
 
-Contributions, issues, and feature requests are welcome! Feel free to check our [issues page](https://github.com/your-username/watchwise/issues).
+Contributions, issues, and feature requests are welcome! Feel free to check our
 
-<div align="center">
 
-![Contributors](@readmepic/contributors.png)
-
-</div>
 
 ---
 
@@ -101,6 +91,6 @@ Contributions, issues, and feature requests are welcome! Feel free to check our 
 
 © 2024 WatchWise. All rights reserved.
 
-[![Made with ❤️ by webdj](https://img.shields.io/badge/Made%20with-❤️-red.svg)](https://elorate.vercel.app/)
+[![Made with ❤️ ](https://img.shields.io/badge/Made%20with-❤️-red.svg)](https://elorate.vercel.app/) by healertrix
 
 </div>
