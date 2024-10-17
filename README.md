@@ -81,7 +81,7 @@ WatchWise is deployed on [Vercel](https://vercel.com/). Visit the live site at [
 
 ## 🤝 Contributing
 
-Contributions, issues, and feature requests are welcome! Feel free to check our
+Contributions, issues, and feature requests are welcome! 
 
 
 
