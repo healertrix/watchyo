@@ -27,15 +27,6 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'WatchYo - Your Ultimate Entertainment Hub',
-    description:
-      'Discover, stream, and explore movies, TV shows, and anime with WatchYo. Experience entertainment like never before.',
-    images: [{
-      url: 'https://watchyo.vercel.app/wlogo.png', // Use the same URL as in openGraph
-      alt: 'WatchYo Logo',
-      width: 1200,
-      height: 630,
-    }],
     creator: '@WatchYo',
     site: '@WatchYo',
   },
