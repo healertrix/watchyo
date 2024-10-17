@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     title: 'WatchYo - Your Ultimate Entertainment Hub',
     description:
       'Discover, stream, and explore movies, TV shows, and anime with WatchYo. Experience entertainment like never before.',
-    images: ['https://watchyo.com/images/watchyo-twitter-image.png'], // Replace with the actual URL of your image
+    images: ['https://watchyo.vercel.app/wlogo.png'], // Replace with the actual URL of your image
     creator: '@WatchYo',
     site: '@WatchYo',
   },
