@@ -27,12 +27,9 @@ export default function WatchPage() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <div className="flex-grow">
-        <VideoPlayer mediaType={mediaType as 'movie' | 'tv'} id={id} />
-      </div>
+    <div className='flex flex-col min-h-screen'>
       {!isBrave && (
-        <div className='bg-gradient-to-r from-gray-900 to-gray-800 text-white p-3 sm:p-4 mt-auto flex flex-col sm:flex-row items-center justify-center shadow-lg rounded-b-md'>
+        <div className='bg-gradient-to-r from-gray-900 to-gray-800 text-white p-3 sm:p-4 mt-auto flex flex-col sm:flex-row items-center justify-center shadow-lg rounded-t-md'>
           <p className='text-xs sm:text-sm text-center sm:text-left mb-2 sm:mb-0 sm:mr-4'>
             For the best streaming experience, we recommend:
           </p>
@@ -51,6 +48,9 @@ export default function WatchPage() {
           </Link>
         </div>
       )}
+      <div className='flex-grow'>
+        <VideoPlayer mediaType={mediaType as 'movie' | 'tv'} id={id} />
+      </div>
     </div>
   );
 }
