@@ -16,7 +16,7 @@ export const metadata: Metadata = {
       'Discover, stream, and explore movies, TV shows, and anime with WatchYo. Experience entertainment like never before.',
     images: [
       {
-        url: 'https://watchyo.vercel.app/wlogo.png', // Replace with the actual URL of your image
+        url: 'https://watchyo.vercel.app/wlogo.png', // Ensure this URL is correct and accessible
         width: 1200,
         height: 630,
         alt: 'WatchYo Logo',
@@ -30,7 +30,12 @@ export const metadata: Metadata = {
     title: 'WatchYo - Your Ultimate Entertainment Hub',
     description:
       'Discover, stream, and explore movies, TV shows, and anime with WatchYo. Experience entertainment like never before.',
-    images: ['https://watchyo.vercel.app/wlogo.png'], // Replace with the actual URL of your image
+    images: [{
+      url: 'https://watchyo.vercel.app/wlogo.png', // Use the same URL as in openGraph
+      alt: 'WatchYo Logo',
+      width: 1200,
+      height: 630,
+    }],
     creator: '@WatchYo',
     site: '@WatchYo',
   },
