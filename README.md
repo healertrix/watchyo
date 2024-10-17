@@ -91,6 +91,6 @@ Contributions, issues, and feature requests are welcome!
 
 © 2024 WatchWise. All rights reserved.
 
-[![Made with ❤️ ](https://img.shields.io/badge/Made%20with-❤️-red.svg)](https://elorate.vercel.app/) by healertrix
+[![Made with ❤️ ](https://img.shields.io/badge/Made%20with-❤️-red.svg)](https://elorate.vercel.app/) 
 
 </div>
