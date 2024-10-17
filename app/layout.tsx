@@ -7,8 +7,33 @@ const inter = Inter({ subsets: ["latin"] });
 import Navbar from '@/components/mycomponents/Navbar';
 
 export const metadata: Metadata = {
-  title: "WatchWise",
-  description: "WatchWise is a platform for discovering and streaming movies and TV shows online",
+  title: 'WatchYo',
+  description:
+    'WatchYo is a platform for discovering and streaming movies, TV shows, and anime online',
+  openGraph: {
+    title: 'WatchYo - Your Ultimate Entertainment Hub',
+    description:
+      'Discover, stream, and explore movies, TV shows, and anime with WatchYo. Experience entertainment like never before.',
+    images: [
+      {
+        url: 'https://watchyo.vercel.app/wlogo.png', // Replace with the actual URL of your image
+        width: 1200,
+        height: 630,
+        alt: 'WatchYo Logo',
+      },
+    ],
+    siteName: 'WatchYo',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'WatchYo - Your Ultimate Entertainment Hub',
+    description:
+      'Discover, stream, and explore movies, TV shows, and anime with WatchYo. Experience entertainment like never before.',
+    images: ['https://watchyo.com/images/watchyo-twitter-image.png'], // Replace with the actual URL of your image
+    creator: '@WatchYo',
+    site: '@WatchYo',
+  },
 };
 
 export default function RootLayout({

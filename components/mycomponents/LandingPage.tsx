@@ -8,10 +8,10 @@ export default function LandingPage() {
       <main className='flex-grow flex items-center justify-center relative z-10 px-4 py-16'>
         <div className='max-w-3xl mx-auto text-center'>
           <h1 className='text-5xl md:text-7xl font-extrabold mb-8 leading-tight text-transparent bg-clip-text bg-gradient-to-r dark:from-blue-400 dark:to-purple-600 from-black to-gray-600 drop-shadow-lg'>
-            Discover, Stream, and Explore with WatchWise
+            Discover, Stream, and Explore Movies, TV Shows, and Anime with WatchYo
           </h1>
           <p className='text-xl md:text-2xl mb-12 text-gray-800 dark:text-gray-400 drop-shadow-md'>
-            Your ultimate entertainment hub for movies, TV shows, and anime. Search, discover, watch trailers, and stream in the best available quality. Experience entertainment like never before.
+            Your ultimate entertainment hub for movies, TV shows, and anime. Search, discover, watch trailers, and stream your favorite content in the best available quality. Experience entertainment like never before.
           </p>
           <div className='space-y-4 md:space-y-0 md:space-x-4'>
             <Link href='/select'>
@@ -30,7 +30,7 @@ export default function LandingPage() {
       <section className='py-16 bg-gray-50 dark:bg-gray-900 bg-opacity-90 dark:bg-opacity-50 relative z-10 rounded-lg shadow-lg'>
         <div className='max-w-6xl mx-auto px-4'>
           <h2 className='text-3xl md:text-5xl font-bold text-center mb-12 text-gray-800 dark:text-white'>
-            Unleash the Power of WatchWise
+            Unleash the Power of WatchYo
           </h2>
           <div className='grid grid-cols-1 md:grid-cols-3 gap-8'>
             <FeatureCard
@@ -40,12 +40,12 @@ export default function LandingPage() {
             />
             <FeatureCard
               title='High-Quality Streaming'
-              description='Watch your favorite content in the best available quality.'
+              description='Watch your favorite movies, series, and anime in the best available quality.'
               icon='🎥'
             />
             <FeatureCard
               title='Trailers & Previews'
-              description='Watch trailers and get a sneak peek before diving into full content.'
+              description='Watch trailers and get a sneak peek of movies, TV shows, and anime before diving into full content.'
               icon='🍿'
             />
           </div>
@@ -54,7 +54,7 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className='text-center py-6 text-gray-400 relative z-10'>
-        <p>&copy; 2024 WatchWise. All rights reserved.</p>
+        <p>&copy; 2024 WatchYo. All rights reserved.</p>
       </footer>
     </div>
   );
