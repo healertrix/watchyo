@@ -8,7 +8,7 @@ export default function LandingPage() {
       <main className='flex-grow flex items-center justify-center relative z-10 px-4 py-16'>
         <div className='max-w-3xl mx-auto text-center'>
           <h1 className='text-5xl md:text-7xl font-extrabold mb-8 leading-tight text-transparent bg-clip-text bg-gradient-to-r dark:from-blue-400 dark:to-purple-600 from-black to-gray-600 drop-shadow-lg'>
-            Discover, Stream, and Explore Movies, TV Shows, and Anime with WatchYo
+            Discover, Stream, and Explore entertainment with WatchYo
           </h1>
           <p className='text-xl md:text-2xl mb-12 text-gray-800 dark:text-gray-400 drop-shadow-md'>
             Your ultimate entertainment hub for movies, TV shows, and anime. Search, discover, watch trailers, and stream your favorite content in the best available quality. Experience entertainment like never before.
