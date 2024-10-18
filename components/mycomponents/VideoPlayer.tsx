@@ -43,7 +43,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ mediaType, id }) => {
   };
 
   return (
-    <div className='relative h-screen bg-black'>
+    <div className='relative h-[80vh] bg-black'>
       <div className='absolute left-10 top-6 z-10'>
         <button
           onClick={handleBack}
