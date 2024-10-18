@@ -1,13 +1,13 @@
 <div align="center">
 
-# WatchWise 🎬
+# WatchYo 🎬
 
-[![Website](https://img.shields.io/badge/Visit-WatchWise-blue)](https://elorate.vercel.app/)
+[![Website](https://img.shields.io/badge/Visit-WatchYo-blue)](https://watchyo.vercel.app/)
 
 
 Your ultimate entertainment hub for movies, TV shows, and anime.
 
-![WatchWise Banner](/readmepic/home.png)
+![WatchYo Banner](/readmepic/home.png)
 
 </div>
 
@@ -35,8 +35,8 @@ Your ultimate entertainment hub for movies, TV shows, and anime.
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/watchwise.git
-   cd watchwise
+   git clone https://github.com/your-username/watchyo.git
+   cd watchyo
    ```
 
 2. Install dependencies:
@@ -76,7 +76,7 @@ To learn more about the technologies used in this project, check out the followi
 
 ## 🚀 Deployment
 
-WatchWise is deployed on [Vercel](https://vercel.com/). Visit the live site at [https://elorate.vercel.app/](https://elorate.vercel.app/).
+WatchYo is deployed on [Vercel](https://vercel.com/). Visit the live site at [https://watchyo.vercel.app/](https://watchyo.vercel.app/).
 
 
 ## 🤝 Contributing
@@ -89,8 +89,8 @@ Contributions, issues, and feature requests are welcome!
 
 <div align="center">
 
-© 2024 WatchWise. All rights reserved.
+© 2024 WatchYo. All rights reserved.
 
-[![Made with ❤️ ](https://img.shields.io/badge/Made%20with-❤️-red.svg)](https://elorate.vercel.app/) 
+[![Made with ❤️ ](https://img.shields.io/badge/Made%20with-❤️-red.svg)](https://watchyo.vercel.app/) 
 
 </div>
