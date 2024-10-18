@@ -74,16 +74,16 @@ export default function WatchPage() {
   };
 
   return (
-    <div className='flex flex-col min-h-screen bg-gray-100 dark:bg-gray-900'>
+    <div className='flex flex-col min-h-screen '>
       <div className='flex-grow'>
         <VideoPlayer mediaType={mediaType as 'movie' | 'tv'} id={id} />
       </div>
 
       {mediaType === 'tv' && (!isLastEpisodeOfSeason || !isLastSeason) && (
-        <div className='bg-white dark:bg-gray-900 p-4 flex justify-center'>
+        <div className='bg-white dark:bg-gray-900 p-10 flex justify-center'>
           <button
             onClick={handleNext}
-            className='inline-flex items-center justify-center px-6 py-2 text-base font-medium text-white transition-all duration-300 ease-in-out bg-blue-600 rounded-full hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
+            className='inline-flex items-center justify-center px-10 py-4 text-base font-medium text-white transition-all duration-300 ease-in-out bg-blue-600 rounded-full hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
           >
             <span className='flex items-center'>
               {getNextButtonText()}
@@ -96,7 +96,7 @@ export default function WatchPage() {
         </div>
       )}
 
-      {!isBrave && (
+      {/* {!isBrave && (
         <div className='bg-gradient-to-r from-gray-900 to-gray-800 text-white p-3 sm:p-4 mt-auto flex flex-col sm:flex-row items-center justify-center shadow-lg rounded-t-md'>
           <p className='text-xs sm:text-sm text-center sm:text-left mb-2 sm:mb-0 sm:mr-4'>
             For the best streaming experience, we recommend:
@@ -115,7 +115,7 @@ export default function WatchPage() {
             />
           </Link>
         </div>
-      )}
+      )} */}
     </div>
   );
 }
