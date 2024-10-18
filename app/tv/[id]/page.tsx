@@ -76,8 +76,10 @@ export default function TVShowPage() {
   };
 
   const handleWatchEpisode = (seasonNumber: number, episodeNumber: number) => {
+    const totalEpisodes = tvShow?.current_season.episodes.length || 0;
+    const totalSeasons = tvShow?.seasons.filter(season => season.season_number > 0).length || 0;
     router.push(
-      `/watch/tv/${id}?season=${seasonNumber}&episode=${episodeNumber}&q=${originalSearchQuery}`
+      `/watch/tv/${id}?season=${seasonNumber}&episode=${episodeNumber}&total=${totalEpisodes}&totalSeasons=${totalSeasons}&q=${originalSearchQuery}`
     );
   };
 
@@ -137,7 +139,7 @@ export default function TVShowPage() {
               <Calendar className='w-4 h-4 mr-1' />
               <span className='mr-4'>{tvShow.first_air_date?.split('-')[0]}</span>
               <Clock className='w-4 h-4 mr-1' />
-              <span>{tvShow.seasons.length} Seasons</span>
+              <span>{tvShow.seasons.filter(season => season.season_number > 0).length} Seasons</span>
             </div>
           </div>
         </div>
@@ -162,15 +164,17 @@ export default function TVShowPage() {
             </button>
             {isSeasonDropdownOpen && (
               <div className='absolute z-10 w-full mt-2 bg-gray-800 rounded-lg shadow-lg max-h-96 overflow-y-auto'>
-                {tvShow.seasons.map((season) => (
-                  <button
-                    key={season.season_number}
-                    onClick={() => handleSeasonChange(season.season_number)}
-                    className='w-full text-left px-6 py-4 hover:bg-gray-700 transition-colors text-lg'
-                  >
-                    {season.name}
-                  </button>
-                ))}
+                {tvShow.seasons
+                  .filter(season => season.season_number > 0)
+                  .map((season) => (
+                    <button
+                      key={season.season_number}
+                      onClick={() => handleSeasonChange(season.season_number)}
+                      className='w-full text-left px-6 py-4 hover:bg-gray-700 transition-colors text-lg'
+                    >
+                      {season.name}
+                    </button>
+                  ))}
               </div>
             )}
           </div>
