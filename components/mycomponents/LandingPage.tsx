@@ -60,7 +60,7 @@ export default function LandingPage() {
         <p>
           &copy; 2024 WatchYo. Made with ❤️ by {' '}
           <a
-            href='https://x.com/healertrix'
+            href='https://github.com/healertrix'
             target='_blank'
             rel='noopener noreferrer'
           >
