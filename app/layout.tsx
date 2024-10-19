@@ -16,7 +16,7 @@ export const metadata: Metadata = {
       'Discover, stream, and explore movies, TV shows, and anime with WatchYo. Experience entertainment like never before.',
     images: [
       {
-        url: 'https://watchyo.vercel.app/wlogo.png', // Ensure this URL is correct and accessible
+        url: 'https://watchyo.vercel.app/favicon.png', // Ensure this URL is correct and accessible
         width: 1200,
         height: 630,
         alt: 'WatchYo Logo',
