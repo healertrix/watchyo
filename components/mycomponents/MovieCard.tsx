@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { PlayCircle } from 'lucide-react';
@@ -35,6 +35,20 @@ export default function MovieCard({
   onWatchOnline,
 }: MovieCardProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkIfMobile = () => {
+      setIsMobile(window.innerWidth <= 768); // Adjust this breakpoint as needed
+    };
+
+    checkIfMobile();
+    window.addEventListener('resize', checkIfMobile);
+
+    return () => {
+      window.removeEventListener('resize', checkIfMobile);
+    };
+  }, []);
 
   const posterUrl = movie.poster_path
     ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
@@ -109,14 +123,28 @@ export default function MovieCard({
             {movie.title}
           </h3>
           <p className='text-gray-300 text-sm'>{movieGenres}</p>
-          <div className='flex items-center mt-2'>
-            <div className='bg-yellow-500 text-black px-2 py-1 rounded text-sm mr-2'>
-              IMDb {rating}
+          <div className='flex items-center justify-between mt-2'>
+            <div className='flex items-center'>
+              <div className='bg-yellow-500 text-black px-2 py-1 rounded text-sm mr-2'>
+                IMDb {rating}
+              </div>
+              <span className='text-white text-sm'>{year}</span>
             </div>
-            <span className='text-white text-sm'>{year}</span>
+            {isMobile && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onWatchOnline(movie.media_type, movie.id.toString());
+                }}
+                className='bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold hover:bg-blue-700 transition-colors flex items-center'
+              >
+                <PlayCircle size={16} className="mr-1" />
+                Watch
+              </button>
+            )}
           </div>
         </div>
-        {isHovered && (
+        {(isHovered && !isMobile) && (
           <motion.div
             className='absolute inset-0 bg-black bg-opacity-75 p-4 flex flex-col justify-end'
             initial={{ opacity: 0 }}
