@@ -30,6 +30,9 @@ export const metadata: Metadata = {
     creator: '@WatchYo',
     site: '@WatchYo',
   },
+  icons: {
+    icon: '/favicon.png', // Add this line to specify the favicon
+  },
 };
 
 export default function RootLayout({
@@ -39,6 +42,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang='en'>
+      <head>
+        <link rel="icon" href="/favicon.png" type="image/png" />
+      </head>
       <body className={inter.className}>
         <ThemeProvider
           attribute='class'
