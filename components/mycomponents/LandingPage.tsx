@@ -20,7 +20,7 @@ export default function LandingPage() {
             <Link href='/select'>
               <Button
                 size='lg'
-                className='bg-gradient-to-r from-gray-800 to-black hover:from-gray-400 hover:to-gray-900 dark:from-indigo-600 dark:to-purple-600 dark:hover:from-indigo-700 dark:hover:to-purple-700 text-white font-bold py-4 px-10 rounded-full transform transition-all duration-300 hover:scale-105 shadow-xl hover:shadow-2xl'
+                className='bg-gradient-to-r from-gray-800 to-black hover:from-gray-800 hover:to-gray-900 dark:from-indigo-600 dark:to-purple-600 dark:hover:from-indigo-700 dark:hover:to-purple-700 text-white font-bold py-4 px-10 rounded-full transform transition-all duration-300 hover:scale-105 shadow-xl hover:shadow-2xl'
               >
                 Explore Now
               </Button>
