@@ -74,27 +74,27 @@ export default function WatchPage() {
   };
 
   return (
-    <div className='flex flex-col min-h-screen '>
+    <div className='flex flex-col min-h-screen'>
       <div className='flex-grow'>
         <VideoPlayer mediaType={mediaType as 'movie' | 'tv'} id={id} />
+        
+        {mediaType === 'tv' && (!isLastEpisodeOfSeason || !isLastSeason) && (
+          <div className='p-6 flex justify-center'>
+            <button
+              onClick={handleNext}
+              className='inline-flex items-center justify-center px-8 py-3 text-base font-medium text-white transition-all duration-300 ease-in-out bg-blue-600 rounded-full hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
+            >
+              <span className='flex items-center'>
+                {getNextButtonText()}
+                <ChevronRight
+                  size={20}
+                  className='ml-2 transition-transform duration-300 group-hover:translate-x-1'
+                />
+              </span>
+            </button>
+          </div>
+        )}
       </div>
-
-      {mediaType === 'tv' && (!isLastEpisodeOfSeason || !isLastSeason) && (
-        <div className=' p-10 flex justify-center'>
-          <button
-            onClick={handleNext}
-            className='inline-flex items-center justify-center px-10 py-4 text-base font-medium text-white transition-all duration-300 ease-in-out bg-blue-600 rounded-full hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
-          >
-            <span className='flex items-center'>
-              {getNextButtonText()}
-              <ChevronRight
-                size={20}
-                className='ml-2 transition-transform duration-300 group-hover:translate-x-1'
-              />
-            </span>
-          </button>
-        </div>
-      )}
 
       {!isBrave && (
         <div className='bg-gradient-to-r bg-gray-800  text-white p-3 sm:p-4 mt-auto flex flex-col sm:flex-row items-center justify-center shadow-lg rounded-b-sm'>
