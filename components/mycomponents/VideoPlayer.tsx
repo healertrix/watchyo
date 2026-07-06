@@ -18,10 +18,10 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ mediaType, id }) => {
   const episode = searchParams?.get('episode') || '1';
 
   const updateEmbedUrl = () => {
-    let url = `https://vidsrc.xyz/embed/${mediaType}?tmdb=${id}`;
-    if (mediaType === 'tv') {
-      url += `&season=${season}&episode=${episode}`;
-    }
+    const url =
+      mediaType === 'tv'
+        ? `https://vidsrc.sbs/embed/tv/${id}/${season}/${episode}?autoplay=1`
+        : `https://vidsrc.sbs/embed/movie/${id}?autoplay=1`;
     setEmbedUrl(url);
   };
 
@@ -60,7 +60,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ mediaType, id }) => {
             className='w-full h-full'
             allowFullScreen
             title='Video Player'
-            allow='autoplay'
+            allow='autoplay; fullscreen'
           ></iframe>
         ) : (
           <div className='flex items-center justify-center h-full'>
