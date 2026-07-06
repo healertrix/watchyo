@@ -60,11 +60,11 @@ export default function LandingPage() {
         <p>
           &copy; 2024 WatchYo. Made with ❤️ by {' '}
           <a
-            href='https://github.com/healertrix'
+            href='https://www.abhinavkr.in/'
             target='_blank'
             rel='noopener noreferrer'
           >
-            <u>healertrix</u>
+            <u>Abhinav Kumar</u>
           </a>
           . All rights reserved.
         </p>
