@@ -1,15 +1,17 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 const inter = Inter({ subsets: ["latin"] });
 
 import Navbar from '@/components/mycomponents/Navbar';
+import ServiceWorkerRegister from '@/components/mycomponents/ServiceWorkerRegister';
 
 export const metadata: Metadata = {
   title: 'WatchYo',
   description:
     'WatchYo is a platform for discovering and streaming movies, TV shows, and anime online',
+  manifest: '/manifest.webmanifest',
   openGraph: {
     title: 'WatchYo - Your Ultimate Entertainment Hub',
     description:
@@ -31,8 +33,20 @@ export const metadata: Metadata = {
     site: '@WatchYo',
   },
   icons: {
-    icon: '/favicon.png', // Add this line to specify the favicon
+    icon: '/favicon.png',
+    apple: '/apple-touch-icon.png',
   },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'WatchYo',
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: '#0a0a0a',
+  width: 'device-width',
+  initialScale: 1,
 };
 
 export default function RootLayout({
@@ -52,6 +66,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <ServiceWorkerRegister />
           <Navbar />
           <div className='fixed inset-0 w-screen h-screen bg-[linear-gradient(to_right,#444_1px,transparent_0.2px),linear-gradient(to_bottom,#444_1px,transparent_0.3px)] bg-[size:4rem_4rem] opacity-5 dark:opacity-10 pointer-events-none'></div>
           <main className='container mx-auto px-4 sm:px-6 py-2 relative z-10'>
