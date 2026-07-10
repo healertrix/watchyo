@@ -7,6 +7,9 @@ import { Search } from 'lucide-react';
 import Image from 'next/image';
 import React from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import FilterPills, { SportsFilterPills } from './FilterPills';
+import SportsSection from './SportsSection';
+import { FilterState, DEFAULT_FILTER_STATE, loadFilterState, saveFilterState } from '@/lib/filterState';
 
 interface MediaItem extends Movie {
   name?: string;
@@ -40,21 +43,49 @@ export default function MovieSelector() {
   const [youtubeError, setYoutubeError] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [filterState, setFilterState] = useState<FilterState>(DEFAULT_FILTER_STATE);
+  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
+    const restored = loadFilterState();
+    setFilterState(restored);
+
     const query = searchParams?.get('q');
     const selectedMediaId = searchParams?.get('selectedMediaId');
     const selectedMediaType = searchParams?.get('selectedMediaType');
 
-    if (query && query !== searchQuery) {
-      setSearchQuery(query);
-      searchMedia(query);
+    const effectiveQuery = query || restored.searchQuery;
+    if (effectiveQuery) {
+      setSearchQuery(effectiveQuery);
+      if (restored.showMovies || restored.showTvSeries) {
+        searchMedia(effectiveQuery);
+      }
     }
 
     if (selectedMediaId && selectedMediaType && !selectedMedia) {
       fetchMediaDetails(selectedMediaId, selectedMediaType);
     }
+
+    setHydrated(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    const query = searchParams?.get('q');
+    if (query && query !== searchQuery && (filterState.showMovies || filterState.showTvSeries)) {
+      setSearchQuery(query);
+      searchMedia(query);
+    }
   }, [searchParams]);
+
+  const updateFilterState = useCallback((next: FilterState) => {
+    setFilterState(next);
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    saveFilterState({ ...filterState, searchQuery });
+  }, [filterState, searchQuery, hydrated]);
 
   useEffect(() => {
     if (selectedMedia) {
@@ -241,14 +272,16 @@ export default function MovieSelector() {
   return (
     <div className='min-h-screen text-white dark:text-gray-200'>
       <div className='px-4 py-8'>
-        <div className='max-w-3xl mx-auto mb-8 relative'>
+        <FilterPills value={filterState} onChange={updateFilterState} />
+
+        <div className='max-w-3xl mx-auto mb-4 relative'>
           <div className='relative'>
             <input
               type='text'
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder='Search for movies and TV series...'
+              placeholder='Search movies, TV series, teams, or leagues...'
               className='w-full p-4 pr-12 bg-white dark:bg-gray-800 text-gray-800 dark:text-white rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 border border-gray-300 dark:border-gray-700 shadow-md'
             />
             <button
@@ -262,61 +295,77 @@ export default function MovieSelector() {
           </div>
         </div>
 
-        {isLoading ? (
-          <div className='flex justify-center items-center h-64'>
-            <div className='animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500'></div>
-          </div>
-        ) : error ? (
-          <div className='text-center text-red-500'>{error}</div>
-        ) : searchResults && searchResults.length > 0 ? (
-          <motion.div
-            className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4'
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
-          >
-            {searchResults.map((media) => (
-              <MovieCard
-                key={`${media.media_type}-${media.id}`}
-                movie={media}
-                genres={genres}
-                mediaType={media.media_type}
-                onSelect={handleSelectMedia}
-                onWatchOnline={handleWatchOnline}
-              />
-            ))}
-          </motion.div>
-        ) : hasSearched ? (
-          <div className='text-center'>
-            <Image
-              src='/reel.jpg'
-              alt='Movie reel'
-              width={300}
-              height={300}
-              className='mx-auto mb-4'
-              loading='eager'
-            />
-            <p className='text-gray-500'>
-              No results found. Try searching for a movie or TV show.
-            </p>
-          </div>
-        ) : (
-          <div className='text-center'>
-            <Image
-              src='/goodog.png'
-              alt='Goodoog'
-              width={300}
-              height={300}
-              className='mx-auto mb-4'
-              loading='eager'
-            />
+        <SportsFilterPills value={filterState} onChange={updateFilterState} />
 
-            <p className='text-gray-500'>
-              Start your journey by searching for your favorite movies and TV
-              shows.
-            </p>
-          </div>
+        {filterState.showSports && (
+          <SportsSection selectedSports={filterState.selectedSports} searchQuery={searchQuery} />
         )}
+
+        {(() => {
+          const visibleResults = searchResults.filter(
+            (media) =>
+              (media.media_type === 'movie' && filterState.showMovies) ||
+              (media.media_type === 'tv' && filterState.showTvSeries)
+          );
+
+          if (!filterState.showMovies && !filterState.showTvSeries) return null;
+
+          return isLoading ? (
+            <div className='flex justify-center items-center h-64'>
+              <div className='animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500'></div>
+            </div>
+          ) : error ? (
+            <div className='text-center text-red-500'>{error}</div>
+          ) : visibleResults.length > 0 ? (
+            <motion.div
+              className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4'
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+            >
+              {visibleResults.map((media) => (
+                <MovieCard
+                  key={`${media.media_type}-${media.id}`}
+                  movie={media}
+                  genres={genres}
+                  mediaType={media.media_type}
+                  onSelect={handleSelectMedia}
+                  onWatchOnline={handleWatchOnline}
+                />
+              ))}
+            </motion.div>
+          ) : hasSearched ? (
+            <div className='text-center'>
+              <Image
+                src='/reel.jpg'
+                alt='Movie reel'
+                width={300}
+                height={300}
+                className='mx-auto mb-4'
+                loading='eager'
+              />
+              <p className='text-gray-500'>
+                No results found. Try searching for a movie or TV show.
+              </p>
+            </div>
+          ) : (
+            <div className='text-center'>
+              <Image
+                src='/goodog.png'
+                alt='Goodoog'
+                width={300}
+                height={300}
+                className='mx-auto mb-4'
+                loading='eager'
+              />
+
+              <p className='text-gray-500'>
+                Start your journey by searching for your favorite movies and TV
+                shows.
+              </p>
+            </div>
+          );
+        })()}
       </div>
 
       <AnimatePresence>

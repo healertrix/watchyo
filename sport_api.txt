@@ -1,0 +1,388 @@
+
+Documentation
+Introduction to the API
+Introduction to the API
+More information about the API of WatchFooty
+
+Primary use for this API is to integrate our embeds into your own applications whilst also being able to present your own live score data.
+
+Endpoints
+The API has the following endpoints:
+
+/api/v1/matches/[sport] [?date=2025-01-01]: This endpoint allows you to get the matches available to watch for a specific sport.
+
+/api/v1/matches/live [?date=2025-01-01]: This endpoint allows you to get the live matches available to watch.
+
+/api/v1/matches/[sport]/popular [?date=2025-01-01]: This endpoint allows you to get the popular matches for a specific sport.
+
+/api/v1/matches/[sport]/live [?date=2025-01-01]: This endpoint allows you to get the live matches for a specific sport.
+
+/api/v1/matches/popular [?date=2025-01-01]: This endpoint allows you to get the popular matches across all sports.
+
+/api/v1/matches/popular/live [?date=2025-01-01]: This endpoint allows you to get the popular live matches across all sports.
+
+/api/v1/matches/all [?date=2025-01-01]: This endpoint allows you to get all matches across all sports.
+
+/api/v1/matches/all/live [?date=2025-01-01]: This endpoint allows you to get all live matches across all sports.
+
+/api/v1/matches/all/popular [?date=2025-01-01]: This endpoint allows you to get all popular matches across all sports.
+
+/api/v1/matches/all/popular/live [?date=2025-01-01]: This endpoint allows you to get all popular live matches across all sports.
+
+/api/v1/match/[id]: This endpoint allows you to get the details for a match.
+
+/api/v1/match/[id]/stats: This endpoint allows you to get detailed statistics for a match including boxscore, rosters, and commentary.
+
+/api/v1/poster/[id]: This endpoint allows you to get the poster for a match.
+
+/api/v1/team-logo/[id]: This endpoint allows you to get the logo for a team.
+
+/api/v1/league-logo/[id]: This endpoint allows you to get the logo for a league.
+
+/api/v1/sports: This endpoint allows you to get the sports available to watch.
+
+/api/v1/news or /api/v1/news/[sport]: This endpoint allows you to get recent news across all sports or for a specific sport.
+
+/api/v1/news/article/[id]: This endpoint allows you to get the full content for a news article.
+
+/api/v1/emotes: This endpoint allows you to get the emotes available to use in the chat.
+
+/api/v1/top-leagues or /api/v1/top-leagues/[sport]: This endpoint allows you to get the top leagues for all sports or a specific sport.
+
+/api/v1/top-teams or /api/v1/top-teams/[sport]: This endpoint allows you to get the top teams for all sports or a specific sport.
+
+
+Matches
+Using the API to get the matches available to watch for a specific sport
+
+The matches API provides several endpoints to retrieve matches across different sports with various filtering options. All endpoints return matches for today (past 12 hours and future 12 hours) by default, unless a date parameter is specified.
+
+Get Matches by Sport
+This will return the matches for a specific sport. You can also optionally pass a date to get the matches for a specific date.
+
+/api/v1/matches/[sport] [?date=2025-01-01]
+interface Match {
+  matchId: string;
+  title: string;
+  poster: string;
+  teams: {
+    home: {
+      name: string;
+    };
+    away: {
+      name: string;
+    };
+  };
+  scores: {
+    home: number;
+    away: number;
+  };
+  status: string;
+  currentMinute: string;
+  currentMinuteNumber: number;
+  isEvent: boolean;
+  date: string;
+  timestamp: number;
+  league: string;
+  sport: string;
+  streams: {
+    id: string;
+    url: string;
+    quality: string;
+    language: string;
+    isRedirect: boolean;
+    nsfw: boolean;
+    ads: boolean;
+  }[];
+};
+ 
+const Matches = await fetch("https://api.watchfooty.st/api/v1/matches/football");
+const MatchesData = await Matches.json() as Match[];
+ 
+if (MatchesData.length > 0) {
+  const Match = MatchesData[0];
+  const Streams = Match.streams;
+  if (Streams.length > 0) {
+    const Stream = Streams[0];
+    console.log(Stream); // { id: "123", url: "https://spiderembed.top/xxxx", quality: "1080p", language: "en", isRedirect: false, nsfw: false, ads: false }
+  }
+  console.log(Match); // { matchId: "123", title: "Arsenal vs Manchester United", poster: "https://spiderembed.top/api/match-poster?matchId=123", teams: { home: { name: "Arsenal" }, away: { name: "Manchester United" } }, isEvent: false, date: "2025-01-01", timestamp: 1714732800, league: "Premier League", sport: "football", streams: [{ id: "123", url: "https://spiderembed.top/xxxx", quality: "1080p", language: "en", isRedirect: false, nsfw: false, ads: false }] }
+}
+ 
+// Specifying a date
+const DateString = "2025-01-01";
+const Matches = await fetch(`https://api.watchfooty.st/api/v1/matches/football?date=${DateString}`);
+const MatchesData = await Matches.json() as Match[];
+ 
+if (MatchesData.length > 0) {
+  console.log(MatchesData);
+}
+Copy
+Get All Matches
+Returns matches across all sports.
+
+/api/v1/matches/all [?date=2025-01-01]
+const Matches = await fetch("https://api.watchfooty.st/api/v1/matches/all");
+const MatchesData = await Matches.json() as Match[];
+Copy
+Get Popular Matches
+Returns popular matches across all sports. Popular matches are determined by top teams and top leagues.
+
+/api/v1/matches/popular [?date=2025-01-01]
+const Matches = await fetch("https://api.watchfooty.st/api/v1/matches/popular");
+const MatchesData = await Matches.json() as Match[];
+Copy
+Get Popular Live Matches
+Returns popular matches that are currently live across all sports.
+
+/api/v1/matches/popular/live
+const Matches = await fetch("https://api.watchfooty.st/api/v1/matches/popular/live");
+const MatchesData = await Matches.json() as Match[];
+Copy
+Get Live Matches
+Returns all matches that are currently live across all sports.
+
+/api/v1/matches/live
+const Matches = await fetch("https://api.watchfooty.st/api/v1/matches/live");
+const MatchesData = await Matches.json() as Match[];
+Copy
+Get Popular Matches by Sport
+Returns popular matches for a specific sport.
+
+/api/v1/matches/[sport]/popular [?date=2025-01-01]
+const Matches = await fetch("https://api.watchfooty.st/api/v1/matches/football/popular");
+const MatchesData = await Matches.json() as Match[];
+Copy
+Get Live Matches by Sport
+Returns all matches that are currently live for a specific sport.
+
+/api/v1/matches/[sport]/live
+const Matches = await fetch("https://api.watchfooty.st/api/v1/matches/football/live");
+const MatchesData = await Matches.json() as Match[];
+Copy
+Response Format
+/api/v1/matches/football
+[
+  {
+    "matchId": "123",
+    "title": "Arsenal vs Manchester United",
+    "poster": "/api/v1/poster/123",
+    "teams": {
+      "home": {
+        "name": "Arsenal",
+        "logoUrl": "/api/v1/team-logo/123",
+        "logoId": "123"
+      },
+      "away": {
+        "name": "Manchester United",
+        "logoUrl": "/api/v1/team-logo/456",
+        "logoId": "456"
+      }
+    },
+    "isEvent": false,
+    "date": "2025-01-01T00:00:00.000Z",
+    "timestamp": 1714732800,
+    "league": "Premier League",
+    "leagueLogo": "/api/v1/league-logo/789",
+    "leagueLogoId": "789",
+    "sport": "football",
+    "streams": [{
+      "id": "123",
+      "url": "https://spiderembed.top/embed/xxxx",
+      "quality": "hd",
+      "language": "english",
+      "isRedirect": false,
+      "nsfw": false,
+      "ads": false
+    }]
+  }
+]
+Copy
+Embedding
+You can embed the matches by using the API within the embed.
+
+https://spiderembed.top/embed/xxxx
+<iframe
+  src="https://spiderembed.top/embed/xxxx"
+  width="100%"
+  height="100%"
+  frameborder="0"
+  allowfullscreen
+></iframe>
+
+
+Sports
+Using the API to get the sports available to watch
+
+/api/v1/sports
+interface Sport {
+  name: string;
+  displayName: string;
+};
+ 
+const Sports = await fetch("https://api.watchfooty.st/api/v1/sports");
+const SportsData = await Sports.json() as Sport[];
+ 
+if (SportsData.length > 0) {
+  const Sport = SportsData[0];
+  console.log(Sport); // { name: "football", displayName: "Football" }
+}
+Copy
+Response Format
+/api/v1/sports
+[
+  {
+    "name": "football",
+    "displayName": "Football"
+  }
+  {
+    "name": "hockey",
+    "displayName": "Hockey"
+  }
+  {
+    "name": "baseball",
+    "displayName": "Baseball"
+  }
+]
+
+
+Match Details
+Using the API to get the details for a match
+
+Example
+/api/v1/match/[id]
+const MatchDetailsResponse = await fetch("https://api.watchfooty.st/api/v1/match/123");
+const MatchDetailsData = await MatchDetailsResponse.json();
+ 
+if (MatchDetailsData) {
+  console.log(MatchDetailsData);
+}
+Copy
+Response Format
+/api/v1/match/[id]
+[
+  {
+    "title": "Chelsea vs Manchester United",
+    "poster": "/api/v1/poster/123",
+    "teams": {
+      "home": {
+        "name": "Chelsea";
+        "logoUrl": "/api/v1/team-logo/123";
+        "logoId": "123";
+      };
+      "away": {
+        "name": "Manchester United";
+        "logoUrl": "/api/v1/team-logo/456";
+        "logoId": "456";
+      };
+    };
+    "isEvent": false;
+    "date": "2025-01-01T00:00:00.000Z";
+    "timestamp": 1714732800;
+    "currentMinute": "10";
+    "currentMinuteNumber": 10;
+    "homeScore": 1;
+    "awayScore": 2;
+    "status": "in";
+    "venue": "Old Trafford";
+    "note": "";
+    "eventName": "Chelsea vs Manchester United";
+    "eventLogo": "123";
+    "eventPoster": "123";
+    "eventId": "123";
+    "eventCompetitors": [
+      {
+        "id": "456";
+        "fullName": "Manchester United";
+        "competitorImage": "/api/v1/team-logo/456";
+        "flag": "123";
+      }
+    ],
+    "league": "Premier League";
+    "leagueLogo": "/api/v1/league-logo/123";
+    "leagueLogoId": "123";
+    "sport": "football";
+  }
+]
+
+Posters
+Using the API to get the posters for a match
+
+Example
+/api/v1/poster/[id]
+const PosterResponse = await fetch("https://api.watchfooty.st/api/v1/poster/123");
+const PosterData = await PosterResponse.arrayBuffer(); // Uint8Array
+
+
+
+Top Leagues
+Using the API to get the top leagues for all sports or a specific sport
+
+The top leagues API provides endpoints to retrieve top leagues across all sports or for a specific sport. This includes league names and their aliases.
+
+Get All Top Leagues
+This will return all top leagues from all sports, including aliases.
+
+/api/v1/top-leagues
+const TopLeagues = await fetch("https://api.watchfooty.st/api/v1/top-leagues");
+const TopLeaguesData = await TopLeagues.json() as string[];
+ 
+if (TopLeaguesData.length > 0) {
+  console.log(TopLeaguesData[0]); // "Hot Matches"
+}
+Copy
+Get Top Leagues by Sport
+This will return the top leagues for a specific sport, including aliases.
+
+/api/v1/top-leagues/[sport]
+const TopLeagues = await fetch("https://api.watchfooty.st/api/v1/top-leagues/football");
+const TopLeaguesData = await TopLeagues.json() as string[];
+ 
+if (TopLeaguesData.length > 0) {
+  console.log(TopLeaguesData[0]); // "Hot Matches"
+}
+Copy
+Alternative Endpoints
+You can also use /api/v1/top-leagues/all to explicitly get all top leagues (same as the base endpoint).
+
+Response Format
+The response is an array of strings containing league names and their aliases:
+
+/api/v1/top-leagues/football
+[
+  "Hot Matches",
+  "World Cup",
+  "English Premier League",
+  "UEFA Champions League",
+  "World Cup Qualifying",
+  "FIFA World Cup Qualifying",
+  "FIFA World Cup Qualifying - CONMEBOL",
+  "FIFA World Cup Qualifying - Concacaf",
+  "MLS",
+  ...
+]
+Copy
+Error Handling
+If an invalid sport is provided, the API will return a 400 error:
+
+Error Response
+{
+  "error": "Invalid sport"
+}
+
+
+Team Logos
+Using the API to get the logo for a team
+
+Example
+/api/v1/team-logo/[id]
+const TeamLogoResponse = await fetch("https://api.watchfooty.st/api/v1/team-logo/123");
+const TeamLogoData = await TeamLogoResponse.arrayBuffer(); // Uint8Array
+
+League Logos
+Using the API to get the logo for a league
+
+Example
+/api/v1/league-logo/[id]
+const LeagueLogoResponse = await fetch("https://api.watchfooty.st/api/v1/league-logo/123");
+const LeagueLogoData = await LeagueLogoResponse.arrayBuffer(); // Uint8Array
