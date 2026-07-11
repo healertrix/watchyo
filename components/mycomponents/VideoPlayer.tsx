@@ -44,13 +44,13 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ mediaType, id }) => {
 
   return (
     <div className='relative h-[80vh] bg-black'>
-      <div className='absolute left-10 top-6 z-10'>
+      <div className='absolute left-4 sm:left-6 top-4 sm:top-6 z-10'>
         <button
           onClick={handleBack}
-          className='bg-gray-800 bg-opacity-70 text-white p-3 rounded-full hover:bg-opacity-100 transition-all duration-200'
+          className='bg-black/40 backdrop-blur-sm text-white p-3 rounded-full hover:bg-black/60 active:scale-95 transition-all duration-200'
           aria-label={`Back to ${mediaType === 'tv' ? 'TV Show' : 'Search'}`}
         >
-          <ArrowLeft size={24} />
+          <ArrowLeft size={22} />
         </button>
       </div>
       <div className='h-full'>
@@ -64,7 +64,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ mediaType, id }) => {
           ></iframe>
         ) : (
           <div className='flex items-center justify-center h-full'>
-            <div className='animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500'></div>
+            <div className='animate-spin rounded-full h-14 w-14 border-t-2 border-b-2 border-blue-600'></div>
           </div>
         )}
       </div>

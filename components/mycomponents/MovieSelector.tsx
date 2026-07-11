@@ -2,8 +2,8 @@
 
 import { useState, useEffect, KeyboardEvent, useCallback } from 'react';
 import MovieCard, { Movie } from './MovieCard';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Search } from 'lucide-react';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
+import { Search, PlayCircle, Star, X } from 'lucide-react';
 import Image from 'next/image';
 import React from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -30,6 +30,9 @@ interface Genre {
   name: string;
 }
 
+// TMDB's genre id for "Animation" — used to bucket anime separately from Movies/TV.
+const ANIMATION_GENRE_ID = 16;
+
 export default function MovieSelector() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<MediaItem[]>([]);
@@ -45,6 +48,7 @@ export default function MovieSelector() {
   const searchParams = useSearchParams();
   const [filterState, setFilterState] = useState<FilterState>(DEFAULT_FILTER_STATE);
   const [hydrated, setHydrated] = useState(false);
+  const reduceMotion = useReducedMotion();
 
   useEffect(() => {
     const restored = loadFilterState();
@@ -54,9 +58,11 @@ export default function MovieSelector() {
     const mode = searchParams?.get('mode');
     const withMode: FilterState =
       mode === 'movies'
-        ? { ...restored, showMovies: true, showTvSeries: false, showSports: false }
+        ? { ...restored, showMovies: true, showTvSeries: false, showAnime: false, showSports: false }
         : mode === 'tv'
-        ? { ...restored, showMovies: false, showTvSeries: true, showSports: false }
+        ? { ...restored, showMovies: false, showTvSeries: true, showAnime: false, showSports: false }
+        : mode === 'anime'
+        ? { ...restored, showMovies: false, showTvSeries: false, showAnime: true, showSports: false }
         : mode === 'sports'
         ? { ...restored, showSports: true }
         : restored;
@@ -70,7 +76,7 @@ export default function MovieSelector() {
     const effectiveQuery = query || withMode.searchQuery;
     if (effectiveQuery) {
       setSearchQuery(effectiveQuery);
-      if (withMode.showMovies || withMode.showTvSeries) {
+      if (withMode.showMovies || withMode.showTvSeries || withMode.showAnime) {
         searchMedia(effectiveQuery);
       }
     }
@@ -85,7 +91,11 @@ export default function MovieSelector() {
 
   useEffect(() => {
     const query = searchParams?.get('q');
-    if (query && query !== searchQuery && (filterState.showMovies || filterState.showTvSeries)) {
+    if (
+      query &&
+      query !== searchQuery &&
+      (filterState.showMovies || filterState.showTvSeries || filterState.showAnime)
+    ) {
       setSearchQuery(query);
       searchMedia(query);
     }
@@ -110,6 +120,15 @@ export default function MovieSelector() {
     return () => {
       document.body.style.overflow = 'unset';
     };
+  }, [selectedMedia]);
+
+  useEffect(() => {
+    if (!selectedMedia) return;
+    const handleKeyDown = (e: globalThis.KeyboardEvent) => {
+      if (e.key === 'Escape') setSelectedMedia(null);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, [selectedMedia]);
 
   const fetchGenres = async () => {
@@ -205,7 +224,12 @@ export default function MovieSelector() {
       newParams.delete('selectedMediaId');
       newParams.delete('selectedMediaType');
     }
-    router.push(`/select?${newParams.toString()}`, { scroll: false });
+    const nextQueryString = newParams.toString();
+    // Skip the navigation entirely when nothing would actually change — pushing to
+    // an identical URL still fires a new `searchParams` object, which re-triggers
+    // the effect below and can loop (search -> push -> re-search -> push -> ...).
+    if (nextQueryString === searchParams?.toString()) return;
+    router.push(`/select?${nextQueryString}`, { scroll: false });
   }, [router, searchParams]);
 
   const handlePlayTrailer = (videoKey: string) => {
@@ -283,27 +307,31 @@ export default function MovieSelector() {
   }, [searchQuery, updateURLParams]);
 
   return (
-    <div className='min-h-screen text-white dark:text-gray-200'>
-      <div className='px-4 py-8'>
+    <div className='min-h-screen text-gray-900 dark:text-gray-100'>
+      <div className='container mx-auto px-4 sm:px-6 py-6 sm:py-8'>
         <FilterPills value={filterState} onChange={updateFilterState} />
 
-        <div className='max-w-3xl mx-auto mb-4 relative'>
+        <div className='max-w-5xl mx-auto mb-6 sm:mb-10 relative'>
           <div className='relative'>
+            <Search
+              size={18}
+              className='pointer-events-none absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500'
+            />
             <input
               type='text'
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder='Search movies, TV series, teams, or leagues...'
-              className='w-full p-4 pr-12 bg-white dark:bg-gray-800 text-gray-800 dark:text-white rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 border border-gray-300 dark:border-gray-700 shadow-md'
+              placeholder='Search movies, TV, anime, teams...'
+              className='w-full py-3.5 sm:py-5 pl-11 sm:pl-14 pr-14 sm:pr-16 text-sm sm:text-base bg-white dark:bg-gray-800/80 text-gray-800 dark:text-white rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 dark:focus:ring-offset-gray-950 border border-gray-200 dark:border-gray-700 shadow-sm transition-all duration-200 focus:shadow-lg focus:shadow-blue-600/10'
             />
             <button
               onClick={() => searchMedia(searchQuery)}
               disabled={!searchQuery.trim()}
-              className='absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
+              className='absolute right-2 sm:right-2.5 top-1/2 -translate-y-1/2 w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center rounded-xl bg-blue-600 text-white hover:bg-blue-500 active:scale-95 transition-all disabled:opacity-40 disabled:hover:bg-blue-600 disabled:cursor-not-allowed shadow-md shadow-blue-600/20'
               aria-label='Search'
             >
-              <Search size={20} />
+              <Search size={16} />
             </button>
           </div>
         </div>
@@ -315,23 +343,32 @@ export default function MovieSelector() {
         )}
 
         {(() => {
-          const visibleResults = searchResults.filter(
-            (media) =>
+          // TMDB tags anime under the "Animation" genre (id 16); treat that as its own
+          // bucket rather than lumping it in with Movies/TV Shows.
+          const visibleResults = searchResults.filter((media) => {
+            const isAnime = media.genre_ids?.includes(ANIMATION_GENRE_ID) ?? false;
+            if (isAnime) return filterState.showAnime;
+            return (
               (media.media_type === 'movie' && filterState.showMovies) ||
               (media.media_type === 'tv' && filterState.showTvSeries)
-          );
+            );
+          });
 
-          if (filterState.showSports || (!filterState.showMovies && !filterState.showTvSeries)) return null;
+          if (
+            filterState.showSports ||
+            (!filterState.showMovies && !filterState.showTvSeries && !filterState.showAnime)
+          )
+            return null;
 
           return isLoading ? (
             <div className='flex justify-center items-center h-64'>
-              <div className='animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500'></div>
+              <div className='animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-600'></div>
             </div>
           ) : error ? (
             <div className='text-center text-red-500'>{error}</div>
           ) : visibleResults.length > 0 ? (
             <motion.div
-              className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4'
+              className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 2xl:grid-cols-6 gap-4 sm:gap-5'
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5 }}
@@ -348,33 +385,37 @@ export default function MovieSelector() {
               ))}
             </motion.div>
           ) : hasSearched ? (
-            <div className='text-center'>
+            <div className='text-center py-4'>
               <Image
                 src='/reel.jpg'
                 alt='Movie reel'
-                width={300}
-                height={300}
-                className='mx-auto mb-4'
+                width={220}
+                height={220}
+                className='mx-auto mb-5 rounded-2xl'
                 loading='eager'
               />
-              <p className='text-gray-500'>
-                No results found. Try searching for a movie or TV show.
+              <h2 className='font-display text-xl font-semibold mb-1.5 text-gray-900 dark:text-white'>
+                No results found
+              </h2>
+              <p className='text-gray-500 dark:text-gray-400'>
+                Try searching for a different movie or TV show.
               </p>
             </div>
           ) : (
-            <div className='text-center'>
+            <div className='text-center py-4'>
               <Image
                 src='/goodog.png'
                 alt='Goodoog'
-                width={300}
-                height={300}
-                className='mx-auto mb-4'
+                width={220}
+                height={220}
+                className='mx-auto mb-5'
                 loading='eager'
               />
-
-              <p className='text-gray-500'>
-                Start your journey by searching for your favorite movies and TV
-                shows.
+              <h2 className='font-display text-xl font-semibold mb-1.5 text-gray-900 dark:text-white'>
+                Start your journey
+              </h2>
+              <p className='text-gray-500 dark:text-gray-400'>
+                Search for your favorite movies and TV shows above.
               </p>
             </div>
           );
@@ -384,31 +425,33 @@ export default function MovieSelector() {
       <AnimatePresence>
         {selectedMedia && (
           <motion.div
-            className='fixed inset-0 bg-black bg-opacity-75 flex items-start justify-center z-50 p-4 overflow-y-auto'
+            className='fixed inset-0 bg-black/80 backdrop-blur-sm flex items-start justify-center z-50 p-4 overflow-y-auto'
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: reduceMotion ? 0 : 0.2 }}
           >
             <motion.div
-              className='bg-gray-900 rounded-lg overflow-hidden max-w-4xl w-full relative my-8'
-              initial={{ scale: 0.9, opacity: 0, y: 50 }}
+              className='bg-gradient-to-b from-slate-900 to-slate-950 rounded-2xl overflow-hidden max-w-4xl w-full relative my-8 ring-1 ring-blue-500/10 shadow-2xl shadow-black/50'
+              initial={reduceMotion ? { opacity: 0 } : { scale: 0.95, opacity: 0, y: 24 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 50 }}
+              exit={reduceMotion ? { opacity: 0 } : { scale: 0.95, opacity: 0, y: 24 }}
+              transition={{ duration: reduceMotion ? 0.15 : 0.35, ease: [0.16, 1, 0.3, 1] }}
             >
               <button
                 onClick={closeModal}
-                className='absolute top-2 right-2 sm:top-4 sm:right-4 md:top-8 md:right-4 text-white text-2xl bg-blue-600 w-10 h-10 rounded-full flex items-center justify-center z-20 hover:bg-blue-700 transition-colors'
+                className='absolute top-3 right-3 sm:top-4 sm:right-4 text-white bg-black/40 backdrop-blur-sm w-9 h-9 rounded-full flex items-center justify-center z-20 hover:bg-black/60 active:scale-95 transition-all'
                 aria-label='Close'
               >
-                &times;
+                <X size={18} />
               </button>
               {isModalLoading ? (
                 <div className='flex justify-center items-center h-64'>
-                  <div className='animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500'></div>
+                  <div className='animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600'></div>
                 </div>
               ) : (
                 <>
-                  <div className='aspect-video'>
+                  <div className='relative aspect-video bg-black'>
                     {selectedMedia.video && !youtubeError ? (
                       <iframe
                         key={selectedMedia.video}
@@ -442,77 +485,12 @@ export default function MovieSelector() {
                       </div>
                     )}
                   </div>
-                  <div className='p-6'>
-                    <h2 className='text-2xl font-bold mb-2'>
-                      {selectedMedia.title || selectedMedia.name}
-                    </h2>
-                    <p className='text-gray-300 mb-4'>
-                      {(() => {
-                        const date =
-                          selectedMedia.release_date ||
-                          selectedMedia.first_air_date;
-                        return date
-                          ? `${new Date(date).getFullYear()} • `
-                          : 'Year not available • ';
-                      })()}
-                      {selectedMedia.media_type === 'movie'
-                        ? selectedMedia.runtime
-                          ? `${selectedMedia.runtime} min`
-                          : 'Runtime not available'
-                        : selectedMedia.number_of_seasons
-                        ? `${selectedMedia.number_of_seasons} season${
-                            selectedMedia.number_of_seasons > 1 ? 's' : ''
-                          }`
-                        : 'Seasons not available'}{' '}
-                      •
-                      {selectedMedia.genres
-                        ? selectedMedia.genres
-                            .map((genre: { name: string }) => genre.name)
-                            .join(', ')
-                        : selectedMedia.genre_ids
-                        ? selectedMedia.genre_ids
-                            .map((id: number) => genres[id])
-                            .filter(Boolean)
-                            .join(', ')
-                        : 'Genres not available'}
-                    </p>
-                    <p className='text-gray-400 mb-4'>
-                      {selectedMedia.overview || 'No overview available'}
-                    </p>
-                    <div className='mb-4'>
-                      <strong className='text-gray-300'>Creative Team:</strong>{' '}
-                      {selectedMedia.creative_team &&
-                      selectedMedia.creative_team.length > 0
-                        ? selectedMedia.creative_team
-                            .map((teamMember) => teamMember.name)
-                            .join(', ')
-                        : 'Not available'}
-                    </div>
-                    <div className='mb-4'>
-                      <strong className='text-gray-300'>Cast:</strong>{' '}
-                      {selectedMedia.cast && selectedMedia.cast.length > 0
-                        ? selectedMedia.cast.join(', ')
-                        : 'Not available'}
-                    </div>
-                    <div className='mb-4'>
-                      <strong className='text-gray-300'>
-                        Production Companies:
-                      </strong>{' '}
-                      {selectedMedia.production_companies &&
-                      selectedMedia.production_companies.length > 0
-                        ? selectedMedia.production_companies
-                            .map((company) => company.name)
-                            .join(', ')
-                        : 'Not available'}
-                    </div>
-                    <div className='flex items-center justify-between'>
-                      <div className='bg-yellow-500 text-black px-2 py-1 rounded text-sm inline-block'>
-                        IMDb{' '}
-                        {selectedMedia.vote_average
-                          ? selectedMedia.vote_average.toFixed(1)
-                          : 'N/A'}
-                      </div>
-                      <div>
+                  <div className='p-4 sm:p-8'>
+                    <div className='flex items-start justify-between gap-3 sm:gap-4 mb-3'>
+                      <h2 className='font-display text-xl sm:text-3xl font-semibold text-white tracking-tight text-balance'>
+                        {selectedMedia.title || selectedMedia.name}
+                      </h2>
+                      <div className='shrink-0 flex items-center gap-2'>
                         <button
                           onClick={() =>
                             handleWatchOnline(
@@ -520,16 +498,101 @@ export default function MovieSelector() {
                               selectedMedia.id.toString()
                             )
                           }
-                          className='bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-semibold hover:bg-blue-700 transition-colors mr-2'
+                          className='flex items-center text-white px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-semibold active:scale-95 transition-all shadow-lg bg-blue-600 hover:bg-blue-500 shadow-blue-600/30'
                         >
-                          Watch Online
+                          <PlayCircle className='w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-1.5' />
+                          Watch Now
                         </button>
-                        <button
-                          onClick={closeModal}
-                          className='bg-red-600 text-white px-4 py-2 rounded-full text-sm font-semibold hover:bg-red-700 transition-colors'
+                      </div>
+                    </div>
+
+                    <div className='flex flex-wrap items-center gap-2 mb-4'>
+                      <div className='flex items-center gap-1 bg-yellow-500/95 text-black px-2.5 py-1 rounded-full text-xs font-semibold'>
+                        <Star size={12} fill='currentColor' strokeWidth={0} />
+                        {selectedMedia.vote_average
+                          ? selectedMedia.vote_average.toFixed(1)
+                          : 'N/A'}
+                      </div>
+                      <span className='text-sm text-slate-400'>
+                        {(() => {
+                          const date =
+                            selectedMedia.release_date ||
+                            selectedMedia.first_air_date;
+                          return date
+                            ? new Date(date).getFullYear()
+                            : 'Year not available';
+                        })()}
+                      </span>
+                      <span className='text-slate-600'>•</span>
+                      <span className='text-sm text-slate-400'>
+                        {selectedMedia.media_type === 'movie'
+                          ? selectedMedia.runtime
+                            ? `${selectedMedia.runtime} min`
+                            : 'Runtime not available'
+                          : selectedMedia.number_of_seasons
+                          ? `${selectedMedia.number_of_seasons} season${
+                              selectedMedia.number_of_seasons > 1 ? 's' : ''
+                            }`
+                          : 'Seasons not available'}
+                      </span>
+                    </div>
+
+                    <div className='flex flex-wrap gap-1.5 mb-5'>
+                      {(selectedMedia.genres
+                        ? selectedMedia.genres.map((genre: { name: string }) => genre.name)
+                        : selectedMedia.genre_ids
+                        ? selectedMedia.genre_ids.map((id: number) => genres[id]).filter(Boolean)
+                        : []
+                      ).map((genreName: string) => (
+                        <span
+                          key={genreName}
+                          className='px-2.5 py-1 rounded-full text-xs font-medium bg-blue-500/10 text-blue-300 border border-blue-500/20'
                         >
-                          Close
-                        </button>
+                          {genreName}
+                        </span>
+                      ))}
+                    </div>
+
+                    <p className='text-slate-400 leading-relaxed mb-6 text-pretty max-w-[70ch]'>
+                      {selectedMedia.overview || 'No overview available'}
+                    </p>
+
+                    <div className='space-y-3 text-sm'>
+                      <div>
+                        <span className='block text-[11px] uppercase tracking-wider text-slate-500 mb-0.5'>
+                          Creative Team
+                        </span>
+                        <span className='text-slate-300'>
+                          {selectedMedia.creative_team &&
+                          selectedMedia.creative_team.length > 0
+                            ? selectedMedia.creative_team
+                                .map((teamMember) => teamMember.name)
+                                .join(', ')
+                            : 'Not available'}
+                        </span>
+                      </div>
+                      <div>
+                        <span className='block text-[11px] uppercase tracking-wider text-slate-500 mb-0.5'>
+                          Cast
+                        </span>
+                        <span className='text-slate-300'>
+                          {selectedMedia.cast && selectedMedia.cast.length > 0
+                            ? selectedMedia.cast.join(', ')
+                            : 'Not available'}
+                        </span>
+                      </div>
+                      <div>
+                        <span className='block text-[11px] uppercase tracking-wider text-slate-500 mb-0.5'>
+                          Production Companies
+                        </span>
+                        <span className='text-slate-300'>
+                          {selectedMedia.production_companies &&
+                          selectedMedia.production_companies.length > 0
+                            ? selectedMedia.production_companies
+                                .map((company) => company.name)
+                                .join(', ')
+                            : 'Not available'}
+                        </span>
                       </div>
                     </div>
                   </div>

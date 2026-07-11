@@ -6,6 +6,7 @@ import VideoPlayer from '@/components/mycomponents/VideoPlayer';
 import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { ChevronRight } from 'lucide-react';
+import { saveTvProgress } from '@/lib/watchProgress';
 
 export default function WatchPage() {
   const params = useParams();
@@ -33,6 +34,14 @@ export default function WatchPage() {
 
     checkBrowser();
   }, []);
+
+  // Remember the last episode watched for this show so the TV page's Play
+  // button can resume from here instead of always starting over at S1E1.
+  useEffect(() => {
+    if (mediaType === 'tv' && id) {
+      saveTvProgress(id, { season, episode });
+    }
+  }, [mediaType, id, season, episode]);
 
   if (!mediaType || !id) {
     return <div>Invalid parameters</div>;
@@ -74,10 +83,10 @@ export default function WatchPage() {
   };
 
   return (
-    <div className='flex flex-col min-h-screen'>
+    <div className='flex flex-col min-h-screen bg-transparent'>
       {!isBrave && (
-        <div className='bg-gradient-to-r bg-gray-800  text-white p-3 sm:p-4 mt-auto flex flex-col sm:flex-row items-center justify-center shadow-lg rounded-t-sm'>
-          <p className='text-xs sm:text-sm text-center sm:text-left mb-2 sm:mb-0 sm:mr-4'>
+        <div className='bg-transparent text-white px-4 py-3 sm:py-3.5 flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4'>
+          <p className='text-xs sm:text-sm text-center sm:text-left text-neutral-400'>
             For the best streaming experience, we recommend:
           </p>
           <Link
@@ -89,8 +98,8 @@ export default function WatchPage() {
             <Image
               src='/brave_color_darkbackground.png'
               alt='Brave Browser Logo'
-              width={60}
-              height={60}
+              width={44}
+              height={44}
             />
           </Link>
         </div>
@@ -102,7 +111,7 @@ export default function WatchPage() {
           <div className='p-6 flex justify-center'>
             <button
               onClick={handleNext}
-              className='inline-flex items-center justify-center px-8 py-3 text-base font-medium text-white transition-all duration-300 ease-in-out bg-blue-600 rounded-full hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
+              className='group inline-flex items-center justify-center px-8 py-3 text-base font-semibold text-white transition-all duration-300 ease-out bg-blue-600 rounded-full hover:bg-blue-500 active:scale-95 shadow-lg shadow-blue-600/25 hover:shadow-xl hover:shadow-blue-600/30 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-neutral-950'
             >
               <span className='flex items-center'>
                 {getNextButtonText()}

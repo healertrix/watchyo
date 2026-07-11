@@ -50,7 +50,7 @@ function SegmentPill({
       type='button'
       onClick={onClick}
       className={cn(
-        'px-3.5 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-colors',
+        'px-2.5 sm:px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap transition-colors',
         active
           ? 'bg-blue-600 text-white shadow-sm'
           : 'text-gray-600 dark:text-gray-300 hover:bg-white/70 dark:hover:bg-gray-700/60'
@@ -61,20 +61,31 @@ function SegmentPill({
   );
 }
 
-// Never leave both Movies and TV off — fall back to showing both.
-function ensureContentDefault(showMovies: boolean, showTvSeries: boolean) {
-  if (!showMovies && !showTvSeries) return { showMovies: true, showTvSeries: true };
-  return { showMovies, showTvSeries };
+// Never leave every content toggle off — fall back to the default trio.
+function ensureContentDefault(showMovies: boolean, showTvSeries: boolean, showAnime: boolean) {
+  if (!showMovies && !showTvSeries && !showAnime) {
+    return { showMovies: true, showTvSeries: true, showAnime: false };
+  }
+  return { showMovies, showTvSeries, showAnime };
 }
 
-// Movies/TV and Sports are two mutually exclusive modes, presented as a segmented
+// Movies/TV/Anime and Sports are two mutually exclusive modes, presented as a segmented
 // control: whichever side isn't active is visually dulled rather than hidden.
 export default function FilterPills({ value, onChange }: FilterPillsProps) {
   const moviesTvActive = !value.showSports;
 
-  const toggleContent = (key: 'showMovies' | 'showTvSeries') => {
-    const flipped = { showMovies: value.showMovies, showTvSeries: value.showTvSeries, [key]: !value[key] };
-    onChange({ ...value, ...ensureContentDefault(flipped.showMovies, flipped.showTvSeries), showSports: false });
+  const toggleContent = (key: 'showMovies' | 'showTvSeries' | 'showAnime') => {
+    const flipped = {
+      showMovies: value.showMovies,
+      showTvSeries: value.showTvSeries,
+      showAnime: value.showAnime,
+      [key]: !value[key],
+    };
+    onChange({
+      ...value,
+      ...ensureContentDefault(flipped.showMovies, flipped.showTvSeries, flipped.showAnime),
+      showSports: false,
+    });
   };
 
   const activateSports = () => {
@@ -82,10 +93,10 @@ export default function FilterPills({ value, onChange }: FilterPillsProps) {
   };
 
   return (
-    <div className='flex items-stretch justify-center gap-3 mb-4'>
+    <div className='flex flex-wrap items-stretch justify-center gap-2 sm:gap-3 mb-4 px-1'>
       <div
         className={cn(
-          'flex items-center gap-1 rounded-xl border-2 p-1 transition-all duration-200',
+          'flex items-center gap-0.5 sm:gap-1 rounded-xl border-2 p-1 transition-all duration-200',
           moviesTvActive
             ? 'border-blue-500/50 bg-blue-50/60 dark:bg-blue-950/20'
             : 'border-gray-200 dark:border-gray-800 opacity-50 saturate-50'
@@ -97,13 +108,16 @@ export default function FilterPills({ value, onChange }: FilterPillsProps) {
         <SegmentPill active={moviesTvActive && value.showTvSeries} onClick={() => toggleContent('showTvSeries')}>
           TV Series
         </SegmentPill>
+        <SegmentPill active={moviesTvActive && value.showAnime} onClick={() => toggleContent('showAnime')}>
+          Anime
+        </SegmentPill>
       </div>
 
       <button
         type='button'
         onClick={activateSports}
         className={cn(
-          'px-6 rounded-xl border-2 text-sm font-semibold transition-all duration-200',
+          'px-4 sm:px-6 rounded-xl border-2 text-sm font-semibold transition-all duration-200',
           value.showSports
             ? 'border-blue-500/50 bg-blue-600 text-white shadow-sm'
             : 'border-gray-200 dark:border-gray-800 text-gray-500 dark:text-gray-400 opacity-50 saturate-50 hover:opacity-75'

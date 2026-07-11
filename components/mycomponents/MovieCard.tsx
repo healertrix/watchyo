@@ -1,9 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import Image from 'next/image';
-import { PlayCircle } from 'lucide-react';
+import { Play, PlayCircle, Star, Clapperboard, Tv } from 'lucide-react';
 
 export interface Movie {
   id: number;
@@ -27,6 +26,8 @@ interface MovieCardProps {
   onWatchOnline: (mediaType: string, id: string) => void;
 }
 
+const EASE_OUT_EXPO: [number, number, number, number] = [0.16, 1, 0.3, 1];
+
 export default function MovieCard({
   movie,
   genres,
@@ -34,21 +35,7 @@ export default function MovieCard({
   onSelect,
   onWatchOnline,
 }: MovieCardProps) {
-  const [isHovered, setIsHovered] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const checkIfMobile = () => {
-      setIsMobile(window.innerWidth <= 768); // Adjust this breakpoint as needed
-    };
-
-    checkIfMobile();
-    window.addEventListener('resize', checkIfMobile);
-
-    return () => {
-      window.removeEventListener('resize', checkIfMobile);
-    };
-  }, []);
+  const reduceMotion = useReducedMotion();
 
   const posterUrl = movie.poster_path
     ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
@@ -72,111 +59,91 @@ export default function MovieCard({
 
   const rating = movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A';
 
-  // console.log('Movie data:', movie);
+  const TypeIcon = mediaType === 'movie' ? Clapperboard : Tv;
 
-  const formatCreativeTeam = (creativeTeam: { role: string; name: string }[]) => {
-    const directors = creativeTeam.filter(member => member.role === 'Director').slice(0, 2);
-    const producers = creativeTeam.filter(member => member.role === 'Producer').slice(0, 2);
-    const writer = creativeTeam.find(member => member.role === 'Writer');
-
-    const formattedTeam = [
-      ...directors.map(d => `${d.name} (Director)`),
-      ...producers.map(p => `${p.name} (Producer)`),
-      writer ? `${writer.name} (Writer)` : null
-    ].filter(Boolean);
-
-    return formattedTeam.join(', ') || 'Creative team not available';
+  const watchNow = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onWatchOnline(movie.media_type, movie.id.toString());
   };
-
-  const creativeTeam = movie.creative_team
-    ? formatCreativeTeam(movie.creative_team)
-    : 'Creative team not available';
 
   return (
     <motion.div
-      className='relative w-full aspect-[2/3] rounded-lg overflow-hidden cursor-pointer'
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      className='group relative w-full aspect-[2/3] rounded-2xl overflow-hidden cursor-pointer ring-1 ring-black/5 dark:ring-white/10 shadow-sm sm:hover:shadow-2xl sm:hover:shadow-black/20 transition-shadow duration-300'
       onClick={() => onSelect(movie)}
       initial={{ scale: 1 }}
-      whileHover={{ scale: 1.05 }}
-      transition={{ duration: 0.3 }}
+      whileHover={reduceMotion ? undefined : { scale: 1.025 }}
+      transition={{ duration: 0.35, ease: EASE_OUT_EXPO }}
     >
       <div className='relative w-full h-full'>
         <span
-          className={`absolute top-2 left-2 px-2 py-1 text-white rounded text-xs ${
-            mediaType === 'movie' ? 'bg-blue-500' : 'bg-green-500'
-          } opacity-80 z-10`}
+          className={`absolute top-2.5 left-2.5 inline-flex items-center gap-1 px-2.5 py-1 text-white rounded-full text-[11px] font-semibold backdrop-blur-md z-10 ${
+            mediaType === 'movie' ? 'bg-blue-600/85' : 'bg-cyan-600/85'
+          }`}
         >
+          <TypeIcon size={11} strokeWidth={2.5} />
           {mediaType === 'movie' ? 'Movie' : 'TV Show'}
         </span>
         <Image
           src={posterUrl}
           alt={movie.title}
           fill
-          sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
+          sizes='(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 20vw'
           style={{ objectFit: 'cover' }}
-          className='rounded-lg'
+          className='rounded-2xl transition-transform duration-500 ease-out sm:group-hover:scale-[1.04]'
         />
-        <div className='absolute inset-x-0 bottom-0 bg-gradient-to-t from-black to-transparent p-4'>
-          <h3 className='text-white text-lg font-bold mb-1 line-clamp-2'>
+
+        {/* Always-on quick-watch button. Touch devices have no hover, so this is the
+            only affordance on mobile; on sm+ it sits alongside the richer hover reveal. */}
+        <button
+          onClick={watchNow}
+          aria-label='Watch now'
+          className='absolute top-2.5 right-2.5 z-10 flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-blue-600/90 text-white backdrop-blur-md active:scale-90 transition-transform sm:opacity-0 sm:group-hover:opacity-100'
+        >
+          <Play size={14} fill='currentColor' className='ml-0.5' />
+        </button>
+
+        <div className='absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/70 to-transparent p-3 sm:p-4 pt-8 sm:pt-10'>
+          <h3 className='text-white text-sm sm:text-base font-semibold mb-1 line-clamp-2 tracking-tight'>
             {movie.title}
           </h3>
-          <p className='text-gray-300 text-sm'>{movieGenres}</p>
-          <div className='flex items-center justify-between mt-2'>
-            <div className='flex items-center'>
-              <div className='bg-yellow-500 text-black px-2 py-1 rounded text-sm mr-2'>
-                IMDb {rating}
-              </div>
-              <span className='text-white text-sm'>{year}</span>
+          <p className='text-gray-300 text-[11px] sm:text-xs mb-1.5 sm:mb-2'>{movieGenres}</p>
+          <div className='flex items-center gap-2'>
+            <div className='flex items-center gap-1 bg-yellow-500/95 text-black px-2 py-0.5 rounded-full text-[11px] sm:text-xs font-semibold'>
+              <Star size={10} fill='currentColor' strokeWidth={0} />
+              {rating}
             </div>
-            {isMobile && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onWatchOnline(movie.media_type, movie.id.toString());
-                }}
-                className='bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold hover:bg-blue-700 transition-colors flex items-center'
-              >
-                <PlayCircle size={16} className="mr-1" />
-                Watch
-              </button>
-            )}
+            <span className='text-gray-300 text-[11px] sm:text-xs'>{year}</span>
           </div>
         </div>
-        {(isHovered && !isMobile) && (
-          <motion.div
-            className='absolute inset-0 bg-black bg-opacity-75 p-4 flex flex-col justify-end'
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.3 }}
-          >
-            <h3 className='text-white text-xl font-bold mb-2'>{movie.title}</h3>
-            <div className='flex items-center text-sm text-gray-300 mb-2'>
-              <span className='mr-2'>{year}</span>
-              <span className='mr-2'>•</span>
-              <span>{movieGenres}</span>
+
+        {/* Desktop-only hover reveal: full overview + labeled CTA. Hidden entirely below
+            sm so touch devices never depend on a hover state that can't fire for them. */}
+        <div
+          className='hidden sm:flex absolute inset-0 bg-gradient-to-t from-black via-black/85 to-black/40 backdrop-blur-[2px] p-4 flex-col justify-end opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out'
+        >
+          <h3 className='text-white text-lg font-semibold mb-2 tracking-tight text-balance'>{movie.title}</h3>
+          <div className='flex items-center text-xs text-gray-300 mb-2'>
+            <span className='mr-2'>{year}</span>
+            <span className='mr-2 text-gray-500'>•</span>
+            <span>{movieGenres}</span>
+          </div>
+          <p className='text-gray-300 text-sm mb-3 line-clamp-3 text-pretty'>
+            {movie.overview || 'No overview available'}
+          </p>
+          <div className='flex items-center justify-between'>
+            <div className='flex items-center gap-1 bg-yellow-500/95 text-black px-2 py-0.5 rounded-full text-xs font-semibold'>
+              <Star size={11} fill='currentColor' strokeWidth={0} />
+              {rating}
             </div>
-            <p className='text-gray-300 text-sm mb-2 line-clamp-3'>
-              {movie.overview || 'No overview available'}
-            </p>
-            <div className='flex items-center justify-between'>
-              <div className='bg-yellow-500 text-black px-2 py-1 rounded text-sm'>
-                IMDb {rating}
-              </div>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onWatchOnline(movie.media_type, movie.id.toString());
-                }}
-                className='bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold hover:bg-blue-700 transition-colors flex items-center'
-              >
-                <PlayCircle size={16} className="mr-1" />
-                Watch Online
-              </button>
-            </div>
-          </motion.div>
-        )}
+            <button
+              onClick={watchNow}
+              className='bg-blue-600 text-white px-3.5 py-1.5 rounded-full text-sm font-semibold hover:bg-blue-500 active:scale-95 transition-all flex items-center shadow-lg shadow-blue-600/30'
+            >
+              <PlayCircle size={16} className='mr-1.5' />
+              Watch Online
+            </button>
+          </div>
+        </div>
       </div>
     </motion.div>
   );

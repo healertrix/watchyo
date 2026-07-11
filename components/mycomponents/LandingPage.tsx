@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { motion, useReducedMotion, type Variants } from 'framer-motion';
-import { Clapperboard, Tv, Radio, ArrowRight } from 'lucide-react';
+import { Clapperboard, Tv, Sparkles, Radio, ArrowRight } from 'lucide-react';
 
 const PILLARS = [
   {
@@ -19,6 +19,13 @@ const PILLARS = [
     icon: Tv,
     accent: 'text-cyan-600 dark:text-cyan-400 bg-cyan-600/10 dark:bg-cyan-400/10',
     mode: 'tv',
+  },
+  {
+    title: 'Anime',
+    description: 'From seasonal favorites to long-running classics.',
+    icon: Sparkles,
+    accent: 'text-rose-600 dark:text-rose-400 bg-rose-600/10 dark:bg-rose-400/10',
+    mode: 'anime',
   },
   {
     title: 'Live Sports',
@@ -90,7 +97,7 @@ export default function LandingPage() {
       <section className='py-16 md:py-20 relative z-10'>
         <div className='max-w-5xl mx-auto px-4'>
           <motion.div
-            className='grid grid-cols-1 md:grid-cols-3 gap-5'
+            className='grid grid-cols-2 md:grid-cols-4 gap-5'
             initial={reduceMotion ? undefined : 'hidden'}
             whileInView={reduceMotion ? undefined : 'show'}
             viewport={{ once: true, amount: 0.3 }}
@@ -120,17 +127,7 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className='text-center py-6 text-gray-400 relative z-10'>
-        <p>
-          &copy; {new Date().getFullYear()} WatchYo. Made with ❤️ by{' '}
-          <a
-            href='https://www.abhinavkr.in/'
-            target='_blank'
-            rel='noopener noreferrer'
-          >
-            <u>Abhinav Kumar</u>
-          </a>
-          . All rights reserved.
-        </p>
+        <p>&copy; {new Date().getFullYear()} WatchYo. All rights reserved.</p>
       </footer>
     </div>
   );
