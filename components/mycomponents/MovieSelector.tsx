@@ -48,16 +48,29 @@ export default function MovieSelector() {
 
   useEffect(() => {
     const restored = loadFilterState();
-    setFilterState(restored);
+
+    // The home page's Movies / TV Shows / Live Sports cards link here with a `mode`
+    // param so the right filter is already active when the page lands.
+    const mode = searchParams?.get('mode');
+    const withMode: FilterState =
+      mode === 'movies'
+        ? { ...restored, showMovies: true, showTvSeries: false, showSports: false }
+        : mode === 'tv'
+        ? { ...restored, showMovies: false, showTvSeries: true, showSports: false }
+        : mode === 'sports'
+        ? { ...restored, showSports: true }
+        : restored;
+
+    setFilterState(withMode);
 
     const query = searchParams?.get('q');
     const selectedMediaId = searchParams?.get('selectedMediaId');
     const selectedMediaType = searchParams?.get('selectedMediaType');
 
-    const effectiveQuery = query || restored.searchQuery;
+    const effectiveQuery = query || withMode.searchQuery;
     if (effectiveQuery) {
       setSearchQuery(effectiveQuery);
-      if (restored.showMovies || restored.showTvSeries) {
+      if (withMode.showMovies || withMode.showTvSeries) {
         searchMedia(effectiveQuery);
       }
     }
@@ -308,7 +321,7 @@ export default function MovieSelector() {
               (media.media_type === 'tv' && filterState.showTvSeries)
           );
 
-          if (!filterState.showMovies && !filterState.showTvSeries) return null;
+          if (filterState.showSports || (!filterState.showMovies && !filterState.showTvSeries)) return null;
 
           return isLoading ? (
             <div className='flex justify-center items-center h-64'>

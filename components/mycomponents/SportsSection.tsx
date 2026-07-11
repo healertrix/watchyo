@@ -3,7 +3,15 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { SportsMatch, bestStream, isMatchLive, isMatchFinished, toMs } from '@/lib/sports.types';
+import Image from 'next/image';
+import {
+  SportsMatch,
+  bestStream,
+  isMatchLive,
+  isMatchFinished,
+  hasWatchableStream,
+  toMs,
+} from '@/lib/sports.types';
 import SportsMatchCard from './SportsMatchCard';
 
 interface SportsSectionProps {
@@ -80,13 +88,24 @@ export default function SportsSection({ selectedSports, searchQuery }: SportsSec
       })
     : matches;
 
+  // Matches with a watchable stream link are kept together at the top of each
+  // section, ahead of matches you can't click into yet.
+  const byWatchableThen = (compareTime: (a: SportsMatch, b: SportsMatch) => number) => {
+    return (a: SportsMatch, b: SportsMatch) => {
+      const aWatchable = hasWatchableStream(a) ? 0 : 1;
+      const bWatchable = hasWatchableStream(b) ? 0 : 1;
+      if (aWatchable !== bWatchable) return aWatchable - bWatchable;
+      return compareTime(a, b);
+    };
+  };
+
   const notFinished = searched.filter((m) => !isMatchFinished(m));
   const liveMatches = notFinished
     .filter((m) => isMatchLive(m))
-    .sort((a, b) => toMs(b.timestamp) - toMs(a.timestamp));
+    .sort(byWatchableThen((a, b) => toMs(b.timestamp) - toMs(a.timestamp)));
   const upcomingMatches = notFinished
     .filter((m) => !isMatchLive(m))
-    .sort((a, b) => toMs(a.timestamp) - toMs(b.timestamp));
+    .sort(byWatchableThen((a, b) => toMs(a.timestamp) - toMs(b.timestamp)));
 
   const handleSelect = (match: SportsMatch) => {
     // The match-details API doesn't include streams, only the list endpoints do,
@@ -153,8 +172,20 @@ export default function SportsSection({ selectedSports, searchQuery }: SportsSec
           )}
         </>
       ) : (
-        <div className='text-center text-gray-500 py-8'>
-          {hasQuery ? `No matches found for "${searchQuery}".` : 'No matches found.'}
+        <div className='text-center py-8'>
+          <Image
+            src='/reel.jpg'
+            alt='Movie reel'
+            width={300}
+            height={300}
+            className='mx-auto mb-4'
+            loading='eager'
+          />
+          <p className='text-gray-500'>
+            {hasQuery
+              ? `No streams found for "${searchQuery}". Try searching for something else.`
+              : 'No streams found. Try searching for something else.'}
+          </p>
         </div>
       )}
     </div>
