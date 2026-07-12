@@ -130,16 +130,16 @@ export default function MovieCard({
           <p className='text-gray-300 text-sm mb-3 line-clamp-3 text-pretty'>
             {movie.overview || 'No overview available'}
           </p>
-          <div className='flex items-center justify-between'>
-            <div className='flex items-center gap-1 bg-yellow-500/95 text-black px-2 py-0.5 rounded-full text-xs font-semibold'>
+          <div className='flex items-center justify-between gap-2'>
+            <div className='flex shrink-0 items-center gap-1 bg-yellow-500/95 text-black px-2 py-0.5 rounded-full text-xs font-semibold'>
               <Star size={11} fill='currentColor' strokeWidth={0} />
               {rating}
             </div>
             <button
               onClick={watchNow}
-              className='bg-blue-600 text-white px-3.5 py-1.5 rounded-full text-sm font-semibold hover:bg-blue-500 active:scale-95 transition-all flex items-center shadow-lg shadow-blue-600/30'
+              className='min-w-0 bg-blue-600 text-white px-3.5 py-1.5 rounded-full text-sm font-semibold hover:bg-blue-500 active:scale-95 transition-all flex items-center whitespace-nowrap shadow-lg shadow-blue-600/30'
             >
-              <PlayCircle size={16} className='mr-1.5' />
+              <PlayCircle size={16} className='mr-1.5 shrink-0' />
               Watch Online
             </button>
           </div>

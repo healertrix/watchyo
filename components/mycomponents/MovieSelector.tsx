@@ -10,6 +10,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import FilterPills, { SportsFilterPills } from './FilterPills';
 import SportsSection from './SportsSection';
 import { FilterState, DEFAULT_FILTER_STATE, loadFilterState, saveFilterState } from '@/lib/filterState';
+import { loadTvProgress } from '@/lib/watchProgress';
 
 interface MediaItem extends Movie {
   name?: string;
@@ -276,7 +277,14 @@ export default function MovieSelector() {
   const handleWatchOnline = useCallback(
     (mediaType: string, id: string) => {
       if (mediaType === 'tv') {
-        router.push(`/tv/${id}?q=${encodeURIComponent(searchQuery)}`);
+        // Jump straight into the player: resume where the viewer left off if
+        // we have progress for this show, otherwise start at S1E1.
+        const progress = loadTvProgress(id);
+        const season = progress?.season ?? 1;
+        const episode = progress?.episode ?? 1;
+        router.push(
+          `/watch/tv/${id}?season=${season}&episode=${episode}&q=${encodeURIComponent(searchQuery)}`
+        );
       } else {
         router.push(
           `/watch/${mediaType}/${id}?q=${encodeURIComponent(
