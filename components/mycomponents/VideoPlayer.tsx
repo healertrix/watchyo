@@ -20,8 +20,8 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ mediaType, id }) => {
   const updateEmbedUrl = () => {
     const url =
       mediaType === 'tv'
-        ? `https://vidsrc.sbs/embed/tv/${id}/${season}/${episode}?autoplay=1`
-        : `https://vidsrc.sbs/embed/movie/${id}?autoplay=1`;
+        ? `https://vidsrc.mov/embed/tv/${id}/${season}/${episode}`
+        : `https://vidsrc.mov/embed/movie/${id}`;
     setEmbedUrl(url);
   };
 
